@@ -24,7 +24,9 @@ client.gcfg = require("./gcfg.json");
 client.on("ready", () => {
     util.log("rohrv2 ready.");
     client.editStatus("online", { name: "hecking unbelieveable" });
+});
 
+client.once("ready", () => {
     for (let gid in client.gcfg) {
         let path = `${__dirname}/guilds/${gid}`;
         let gid2 = `${gid}`;
