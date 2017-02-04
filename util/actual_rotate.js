@@ -10,7 +10,7 @@ module.exports = (guild, channel, dirlist, gcfg, path) => {
             icon: "data:image/jpg;base64," + data.toString("base64")
         }).then(guild => {
             if (channel) channel.createMessage(":recycle:");
-            util.log(`rotated on ${guild.id}${guild.name}`);
+            util.log(`rotated on ${guild.id}/${guild.name}`);
 
             gcfg[guild.id].lasttime = Date.now();
             gcfg[guild.id].current = to_rotate.split(".")[0];
