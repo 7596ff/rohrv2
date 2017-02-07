@@ -6,7 +6,7 @@ module.exports = (message) => {
         "`katze pls` - add an image attachment or avatar to rotate (requires the manage server permission)",
         "`katze rotate` - rotates the server avatar",
         "",
-        "the server will rotate the avatar every 24 hours at midnght EST. contact alex#2899 to change this timeout"
+        "the server will rotate the avatar every 24 hours at midnght EST. contact alexa#2899 to change this timeout"
     ];
     message.channel.createMessage(help.join("\n"));
 };
