@@ -14,7 +14,8 @@ client.commands = {
     "pls": require("./commands/pls"),
     "rotato": require("./commands/rotate"),
     "invite": require("./commands/invite"),
-    "help": require("./commands/help")
+    "help": require("./commands/help"),
+    "owo": require("./commands/owo")
 };
 
 client.tasks = {};
