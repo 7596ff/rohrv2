@@ -4,7 +4,7 @@ const fs = require("fs");
 const upone = require("./upone");
 
 module.exports = (gid, mid, url) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         let type = url.split(".")[url.split(".").length - 1];
         if (["png", "jpg", "jpeg", "webp"].indexOf(type) != -1) {
             let __upone = upone(__dirname);
@@ -21,6 +21,8 @@ module.exports = (gid, mid, url) => {
                     resolve();
                 });
             });
+        } else {
+            reject("heck");
         }
     });
 };
