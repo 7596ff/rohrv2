@@ -11,10 +11,15 @@ module.exports = (message) => {
     }
 
     if (message.mentions.length == 1) {
-        download(message.channel.guild.id, message.id, message.mentions[0].avatarURL)
-            .then(() => {
+        download(message.channel.guild.id, message.id, message.mentions[0].avatarURL).then(() => {
                 message.channel.createMessage(":white_check_mark: saved your image.").then(() => resched());
-            }).catch(() => message.channel.createMessage(":x: couldn't save your image."));
+            }).catch(err => {
+                if(err == "heck") {
+                    message.channel.createMessage("tfw gif avatar");
+                } else {
+                    message.channel.createMessage(":x: couldn't save your image.");
+                }
+            });
         return;
     } 
     
@@ -27,7 +32,13 @@ module.exports = (message) => {
         download(message.channel.guild.id, message.id, message.attachments[0].url)
             .then(() => {
                 message.channel.createMessage(":white_check_mark: saved your image.").then(() => resched());
-            }).catch(() => message.channel.createMessage(":x: couldn't save your image."));
+            }).catch(err => {
+                if(err == "heck") {
+                    message.channel.createMessage("tfw gif");
+                } else {
+                    message.channel.createMessage(":x: couldn't save your image.");
+                }
+            });
         return;
     } 
 
