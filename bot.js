@@ -15,7 +15,8 @@ client.commands = {
     "rotato": require("./commands/rotate"),
     "invite": require("./commands/invite"),
     "help": require("./commands/help"),
-    "owo": require("./commands/owo")
+    "owo": require("./commands/owo"),
+    "potato": require("./commands/rotate")
 };
 
 client.tasks = {};
