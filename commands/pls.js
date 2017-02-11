@@ -1,8 +1,5 @@
 const download = require("../util/download");
-
-function resched() {
-    process.exit();
-}
+const resched = require("../util/resched");
 
 module.exports = (message) => {
     if (!message.member.permission.has("manageGuild")) {
@@ -12,7 +9,7 @@ module.exports = (message) => {
 
     if (message.mentions.length == 1) {
         download(message.channel.guild.id, message.id, message.mentions[0].avatarURL).then(() => {
-                message.channel.createMessage(":white_check_mark: saved your image.").then(() => resched());
+                message.channel.createMessage(":white_check_mark: saved your image.").then(() => resched(message._client, message.channel.guild.id));
             }).catch(err => {
                 if(err == "heck") {
                     message.channel.createMessage("tfw gif avatar");
@@ -31,7 +28,7 @@ module.exports = (message) => {
     if (message.attachments.length == 1) {
         download(message.channel.guild.id, message.id, message.attachments[0].url)
             .then(() => {
-                message.channel.createMessage(":white_check_mark: saved your image.").then(() => resched());
+                message.channel.createMessage(":white_check_mark: saved your image.").then(() => resched(message._client, message.channel.guild.id));
             }).catch(err => {
                 if(err == "heck") {
                     message.channel.createMessage("tfw gif");
