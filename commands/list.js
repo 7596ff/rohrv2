@@ -1,6 +1,6 @@
 const fs = require("fs");
 const upone = require("../util/upone")
-var Canvas = require("canvas-prebuilt");
+var Canvas = require("canvas");
 var Image = Canvas.Image;
 
 function draw_images(imglist, gid) {
@@ -18,7 +18,6 @@ function draw_images(imglist, gid) {
             imago.src = imglist[img];
 
             ctx.drawImage(imago, xpos, ypos, 100, 100);
-            //ctx.fillText(img, xpos, ypos);
 
             if (img == imglist.length - 1) {
                 let loc = `${__upone}/grids/${gid}.png`;
