@@ -1,4 +1,5 @@
 const fs = require("fs");
+const util = require("util");
 const upone = require("../util/upone");
 const resched = require("../util/resched");
 
@@ -19,11 +20,11 @@ module.exports = message => {
                     "name": del
                 }).then(() => {
                     fs.unlink(folder + del, () => {
-                        console.log(`deleted ${del}`);
+                        util.log(`deleted ${del}`);
                         resched(message._client, message.channel.guild.id);
                     });
                 }).catch(err => {
-                    console.log(err);
+                    util.error(err);
                 });
             });
         } else {

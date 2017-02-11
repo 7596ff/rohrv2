@@ -19,11 +19,6 @@
         "semi": [
             "error",
             "always"
-        ],
-        "no-console": [
-            0,
-            1,
-            2
         ]
     }
 }

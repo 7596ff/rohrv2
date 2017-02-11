@@ -16,8 +16,8 @@ module.exports = (guild, channel, dirlist, gcfg, path) => {
             gcfg[guild.id].current = to_rotate.split(".")[0];
 
             fs.writeFile("./gcfg.json", JSON.stringify(gcfg), (err) => {
-                if (err) console.log(err);
+                if (err) util.log(err);
             });
-        }).catch(err => console.log(err));
+        }).catch(err => util.error(err));
     });
 };
