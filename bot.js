@@ -7,6 +7,7 @@ const fs = require("fs");
 const schedule = require("node-schedule");
 
 const actual_rotate = require("./util/actual_rotate");
+const resched = require("./util/resched");
 
 client.commands = {
     "ping": require("./commands/ping"),
@@ -17,7 +18,8 @@ client.commands = {
     "help": require("./commands/help"),
     "owo": require("./commands/owo"),
     "potato": require("./commands/rotate"),
-    "list": require("./commands/list")
+    "list": require("./commands/list"),
+    "delete": require("./commands/delete")
 };
 
 client.tasks = {};
@@ -31,22 +33,7 @@ client.on("ready", () => {
 
 client.once("ready", () => {
     for (let gid in client.gcfg) {
-        let path = `${__dirname}/guilds/${gid}`;
-        let gid2 = `${gid}`;
-        fs.readdir(path, (err, files) => {
-            let flist = [];
-            for (let file in files) {
-                flist.push(files[file]);
-            }
-            if (flist.length > 0) {
-                let rule = `0 */${client.gcfg[gid2].timeout} * * *`;
-                client.tasks[gid2] = schedule.scheduleJob(rule, () => {
-                    actual_rotate(client.guilds.get(gid2), null, flist, client.gcfg, path);
-                });
-
-                util.log(`scheduled rotate for gid ${gid2}, images ${flist.length}, timeout ${client.gcfg[gid2].timeout} (${rule})`);
-            }
-        });
+        resched(client, gid);
     }
 });
 
