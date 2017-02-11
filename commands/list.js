@@ -3,42 +3,40 @@ const upone = require("../util/upone")
 var Canvas = require("canvas-prebuilt");
 var Image = Canvas.Image;
 
-function draw_images(imglist, callback) {
-    let full_width = (10 % imglist.length == 10 ? 10 : imglist.length) * 100;
-    let full_height = Math.ceil(imglist.length / 10) * 100;
-    var canvas = new Canvas(full_width, full_height);
-    var ctx = canvas.getContext("2d");
+function draw_images(imglist, gid) {
+    return new Promise((resolve, reject) => {
+        let full_width = (10 % imglist.length == 10 ? 10 : imglist.length) * 100;
+        let full_height = Math.ceil(imglist.length / 10) * 100;
+        let __upone = upone(__dirname);
+        var canvas = new Canvas(full_width, full_height);
+        var ctx = canvas.getContext("2d");
 
-    console.log(full_width);
-    console.log(full_height);
+        for (img in imglist) {
+            let xpos = img % 10 * 100;
+            let ypos = Math.floor(img / 10) * 100;
+            let imago = new Image();
+            imago.src = imglist[img];
 
-    for (img in imglist) {
-        let xpos = img % 10 * 100;
-        let ypos = Math.floor(img / 10) * 100;
+            ctx.drawImage(imago, xpos, ypos, 100, 100);
+            //ctx.fillText(img, xpos, ypos);
 
-        console.log(`drawing at ${xpos} ${ypos}`);
-
-        let imago = new Image();
-        imago.src = imglist[img];
-
-        ctx.drawImage(imago, xpos, ypos, 100, 100);
-        //ctx.fillText(img, xpos, ypos);
-
-        if (img == imglist.length - 1) {
-            console.log('finished')
-            let loc = __dirname + '/heck.png';
-            let out = fs.createWriteStream(loc);
-            let stream = canvas.pngStream();
-
-            stream.on("data", (chunk) => {
-                out.write(chunk);
-            });
-
-            stream.on("end", () => {
-                console.log("saved png");
-            });
+            if (img == imglist.length - 1) {
+                let loc = `${__upone}/grids/${gid}.png`;
+                canvas.pngStream().pipe(fs.createWriteStream(loc)).on("finish", () => {
+                    resolve(loc);
+                });
+            }
         }
-    }
+    });
+}
+
+function get_image(url) {
+    return new Promise((resolve, reject) => {
+        fs.readFile(url, (err, data) => {
+            if (err) reject(err);
+            resolve(data);
+        });
+    });
 }
 
 module.exports = message => {
@@ -46,39 +44,29 @@ module.exports = message => {
     let gcfg = message._client.gcfg[gid];
     let __upone = `${upone(__dirname)}/guilds/${gid}`;
 
-    message.channel.sendTyping();
-
-    let imglist = [];
-    fs.readdir(__upone, (err, files) => {
-        for (file in files) {
-            let url = __upone + '/' + files[file];
-
-            fs.readFile(url, (err, data) => {
-                if (err) {
-                    console.log(err);;
-                    message.channel.createMessage("something went wrong :c");
-                    return;
-                }
-
-                imglist.push(`data:image/${url.split(".")[1]};base64,` + data.toString('base64'));
-
-                if (imglist.length == files.length) {
-                    draw_images(imglist)
-                    setTimeout(() => {
-                        fs.readFile(__dirname + "/heck.png", (err, data) => {
-                            message.channel.createMessage("heck", {
-                                "file": data,
-                                "name": "heck.png"
-                            }).then(() => {
-                                console.log(`sent files to ${message.channel.guild.name}`);
-                            }).catch(err => {
-                                console.log(err);
-                                message.channel.createMessage("something went wrong :c");
-                            });
+    message.channel.sendTyping().then(() => {
+        fs.readdir(__upone, (err, files) => {
+            files.sort();
+            let requests = files.map(fname => get_image(`${__upone}/${fname}`));
+            Promise.all(requests).then(flist => {
+                draw_images(flist, gid).then(loc => {
+                    fs.readFile(loc, (err, data) => {
+                        message.channel.createMessage("heck", {
+                            "file": data,
+                            "name": "heck.png"
+                        }).then(() => {
+                            console.log(`sent grid to ${message.channel.guild.name}`);
+                        }).catch(err => {
+                            console.log(err);
+                            message.channel.createMessage("something went wrong :c");
                         });
-                    }, 500);
-                }
+                    });
+                }).catch(err => {
+                    console.log(err);
+                });
+            }).catch(err => {
+                console.log(err);
             });
-        }
+        });
     });
 };
