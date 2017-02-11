@@ -5,15 +5,15 @@ var Image = Canvas.Image;
 
 function draw_images(imglist, gid) {
     return new Promise((resolve, reject) => {
-        let full_width = (10 % imglist.length == 10 ? 10 : imglist.length) * 100;
-        let full_height = Math.ceil(imglist.length / 10) * 100;
+        let full_width = (5 % imglist.length == 5 ? 5 : imglist.length) * 100;
+        let full_height = Math.ceil(imglist.length / 5) * 100;
         let __upone = upone(__dirname);
         var canvas = new Canvas(full_width, full_height);
         var ctx = canvas.getContext("2d");
 
         for (img in imglist) {
-            let xpos = img % 10 * 100;
-            let ypos = Math.floor(img / 10) * 100;
+            let xpos = img % 5 * 100;
+            let ypos = Math.floor(img / 5) * 100;
             let imago = new Image();
             imago.src = imglist[img];
 
@@ -51,7 +51,13 @@ module.exports = message => {
             Promise.all(requests).then(flist => {
                 draw_images(flist, gid).then(loc => {
                     fs.readFile(loc, (err, data) => {
-                        message.channel.createMessage("heck", {
+                        let rows = [];
+                        for (fnum in files) {
+                            if (fnum % 5 + 1 == 1) rows.push([]);
+                            rows[rows.length - 1].push(files[fnum]);
+                        }
+
+                        message.channel.createMessage(`${"```js\n"}${rows.map(row => row.join(", ")).join("\n")}${"\n```"}`, {
                             "file": data,
                             "name": "heck.png"
                         }).then(() => {
