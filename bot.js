@@ -3,10 +3,6 @@ const config = require("./config");
 var client = new Eris(config.token);
 const util = require("util");
 const fs = require("fs");
-
-const schedule = require("node-schedule");
-
-const actual_rotate = require("./util/actual_rotate");
 const resched = require("./util/resched");
 
 client.commands = {
@@ -44,7 +40,7 @@ client.on("guildCreate", guild => {
     };
 
     fs.writeFile("./gcfg.json", JSON.stringify(client.gcfg), (err) => {
-        if (err) console.log(err);
+        if (err) util.error(err);
     });
 });
 

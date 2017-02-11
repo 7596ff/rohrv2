@@ -18,5 +18,5 @@ module.exports = (client, gid) => {
 
             util.log(`scheduled rotate for gid ${gid}, images ${files.length}, timeout ${client.gcfg[gid].timeout} (${rule})`);
         }
-    })
-}
+    });
+};
