@@ -44,6 +44,14 @@ client.on("guildCreate", guild => {
     });
 });
 
+client.on("guildRemove", guild => {
+    delete client.gcfg[guild.id];
+
+    fs.writeFile("./gcfg.json", JSON.stringify(client.gcfg), (err) => {
+        if (err) util.error(err);
+    });
+});
+
 client.on("messageCreate", message => {
     if (!message.channel.guild) return;
     if (!message.member || !message.author) return;
