@@ -56,7 +56,7 @@ module.exports = message => {
                             rows[rows.length - 1].push(files[fnum]);
                         }
 
-                        message.channel.createMessage(`${"```js\n"}${rows.map(row => row.join(", ")).join("\n")}${"\n```"}`, {
+                        message.channel.createMessage(`${"```js\n"}${rows.map(row => row.join(" ")).join("\n")}${"\n```"}`, {
                             "file": data,
                             "name": "heck.png"
                         }).then(() => {
