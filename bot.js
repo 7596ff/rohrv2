@@ -16,7 +16,8 @@ client.commands = {
     "potato": require("./commands/rotate"),
     "list": require("./commands/list"),
     "delete": require("./commands/delete"),
-    "timeout": require("./commands/timeout")
+    "timeout": require("./commands/timeout"),
+    "show": require("./commands/show")
 };
 
 client.tasks = {};
