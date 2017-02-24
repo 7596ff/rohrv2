@@ -19,11 +19,11 @@ function meme(data, gcfg) {
                 ctx.drawImage(layer1, 0, 0, 128, 128);
                 ctx.drawImage(layer2, 0, 0, 128, 128);
 
-                let loc = `${__upone}/meme/meme.png`;
-                canvas.pngStream().pipe(fs.createWriteStream(loc)).on("finish", () => {
-                    fs.readFile(loc, (err, finish) => {
-                        resolve(finish); // why dont i know js
-                    });
+                let buffers = [];
+                canvas.pngStream().on("data", (buffer) => {
+                    buffers.push(buffer);
+                }).on("end", () => {
+                    resolve(Buffer.concat(buffers));
                 });
             });
         } else {
