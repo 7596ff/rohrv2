@@ -1,7 +1,7 @@
 const util = require("util");
 
 module.exports = (message) => {
-    let me = message.channel.guild.members.has("102645408223731712") ? "<@102645408223731712>" : "alexa#2899";
+    let me = message.channel.guild.members.has("102645408223731712") ? "<@102645408223731712>" : "alexa#0199";
 
     let help = [
         "help for rohrkatze rotator",
