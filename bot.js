@@ -15,7 +15,8 @@ client.commands = {
     "owo": require("./commands/owo"),
     "potato": require("./commands/rotate"),
     "list": require("./commands/list"),
-    "delete": require("./commands/delete")
+    "delete": require("./commands/delete"),
+    "timeout": require("./commands/timeout")
 };
 
 client.tasks = {};
