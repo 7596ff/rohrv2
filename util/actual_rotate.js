@@ -1,6 +1,5 @@
 const fs = require("fs");
 const util = require("util");
-const upone = require("../util/upone");
 var Canvas = require("canvas");
 var Image = Canvas.Image;
 
@@ -8,7 +7,6 @@ function meme(data, gcfg) {
     return new Promise((resolve) => {
         if (gcfg.meme && Math.floor(Math.random() * 10) == 0) {
             fs.readFile("./fake_notify.png", (err, fake) => {
-                let __upone = upone(__dirname);
                 var canvas = new Canvas(128, 128);
                 var ctx = canvas.getContext("2d");
                 let layer1 = new Image();
@@ -53,6 +51,6 @@ module.exports = (guild, channel, dirlist, gcfg, path) => {
             }).catch(err => util.error(err));  
         }).catch(err => {
             util.error(err);
-        })
+        });
     });
 };

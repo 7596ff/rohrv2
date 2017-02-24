@@ -1,5 +1,5 @@
 const fs = require("fs");
-const resched = require("../util/resched");
+const util = require("util");
 
 module.exports = message => {
     if (!message.member.permission.has("manageGuild")) {
