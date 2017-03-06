@@ -18,7 +18,8 @@ client.commands = {
     "delete": require("./commands/delete"),
     "timeout": require("./commands/timeout"),
     "show": require("./commands/show"),
-    "meme": require("./commands/meme")
+    "meme": require("./commands/meme"),
+    "eval": require("./commands/eval")
 };
 
 client.tasks = {};
