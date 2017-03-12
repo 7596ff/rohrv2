@@ -7,6 +7,11 @@ module.exports = (client, gid) => {
     if (client.tasks[gid]) client.tasks[gid].cancel();
 
     let __upone = `${upone(__dirname)}/guilds/${gid}`;
+    if (!client.guilds.get(gid)) {
+        util.log(`guild ${gid} is dead rip`);
+        return;
+    }
+
     let gname = client.guilds.get(gid).name;
 
     fs.readdir(__upone, (err, files) => {
