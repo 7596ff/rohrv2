@@ -21,9 +21,11 @@ function draw_images(imglist, gid) {
             ctx.drawImage(imago, xpos, ypos, 100, 100);
 
             if (img == imglist.length - 1) {
-                let loc = `${__upone}/grids/${gid}.png`;
-                canvas.pngStream().pipe(fs.createWriteStream(loc)).on("finish", () => {
-                    resolve(loc);
+                let buffers = [];
+                canvas.pngStream().on("data", (buffer) => {
+                    buffers.push(buffer);
+                }).on("end", () => {
+                    resolve(Buffer.concat(buffers));
                 });
             }
         }
@@ -48,23 +50,21 @@ module.exports = message => {
             files.sort();
             let requests = files.map(fname => get_image(`${__upone}/${fname}`));
             Promise.all(requests).then(flist => {
-                draw_images(flist, gid).then(loc => {
-                    fs.readFile(loc, (err, data) => {
-                        let rows = [];
-                        for (let fnum in files) {
-                            if (fnum % 5 + 1 == 1) rows.push([]);
-                            rows[rows.length - 1].push(files[fnum]);
-                        }
+                draw_images(flist, gid).then(buff => {
+                    let rows = [];
+                    for (let fnum in files) {
+                        if (fnum % 5 + 1 == 1) rows.push([]);
+                        rows[rows.length - 1].push(files[fnum]);
+                    }
 
-                        message.channel.createMessage(`${"```js\n"}${rows.map(row => row.join(" ")).join("\n")}${"\n```"}`, {
-                            "file": data,
-                            "name": "heck.png"
-                        }).then(() => {
-                            util.log(`sent grid to ${message.channel.guild.name}`);
-                        }).catch(err => {
-                            util.error(err);
-                            message.channel.createMessage("something went wrong :c");
-                        });
+                    message.channel.createMessage(`${"```js\n"}${rows.map(row => row.join(" ")).join("\n")}${"\n```"}`, {
+                        "file": buff,
+                        "name": "heck.png"
+                    }).then(() => {
+                        util.log(`sent grid to ${message.channel.guild.name}`);
+                    }).catch(err => {
+                        util.error(err);
+                        message.channel.createMessage("something went wrong :c");
                     });
                 }).catch(err => {
                     util.log(err);
