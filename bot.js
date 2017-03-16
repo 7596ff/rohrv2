@@ -69,6 +69,7 @@ client.on("messageCreate", message => {
 });
 
 process.on("exit", () => {
+    util.log("exiting");
     client.editStatus("invisible");
 });
 
