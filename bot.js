@@ -5,21 +5,24 @@ const util = require("util");
 const fs = require("fs");
 const resched = require("./util/resched");
 
+rotate = require("./commands/rotate")
 client.commands = {
     "ping": require("./commands/ping"),
-    "rotate": require("./commands/rotate"),
+    "rotate": rotate,
     "pls": require("./commands/pls"),
-    "rotato": require("./commands/rotate"),
+    "rotato": rotate,
     "invite": require("./commands/invite"),
     "help": require("./commands/help"),
     "owo": require("./commands/owo"),
-    "potato": require("./commands/rotate"),
+    "potato": rotate,
     "list": require("./commands/list"),
     "delete": require("./commands/delete"),
     "timeout": require("./commands/timeout"),
     "show": require("./commands/show"),
     "meme": require("./commands/meme"),
-    "eval": require("./commands/eval")
+    "eval": require("./commands/eval"),
+    "tomato": rotate,
+    "🍅": rotate
 };
 
 client.tasks = {};
