@@ -1,5 +1,16 @@
+const fs = require("fs");
 const download = require("../util/download");
 const resched = require("../util/resched");
+
+function force(path, guild) {
+    fs.readFile(path, (err, data) => {
+        if (!err) {
+            guild.edit({
+                icon: "data:image/jpg;base64," + data.toString("base64")
+            }).catch(err => util.error(err));
+        }
+    });
+}
 
 module.exports = (message) => {
     if (!message.member.permission.has("manageGuild")) {
@@ -8,7 +19,8 @@ module.exports = (message) => {
     }
 
     if (message.mentions.length == 1) {
-        download(message.channel.guild.id, message.id, message.mentions[0].avatarURL).then(() => {
+        download(message.channel.guild.id, message.id, message.mentions[0].avatarURL).then((path) => {
+            force(path, message.channel.guild);
             message.channel.createMessage(":white_check_mark: saved your image.").then(() => resched(message._client, message.channel.guild.id));
         }).catch(err => {
             if (err == "heck") {
@@ -27,7 +39,8 @@ module.exports = (message) => {
 
     if (message.attachments.length == 1) {
         download(message.channel.guild.id, message.id, message.attachments[0].url)
-            .then(() => {
+            .then((path) => {
+                force(path, message.channel.guild);
                 message.channel.createMessage(":white_check_mark: saved your image.").then(() => resched(message._client, message.channel.guild.id));
             }).catch(err => {
                 if (err == "heck") {

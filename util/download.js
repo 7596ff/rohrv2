@@ -18,7 +18,7 @@ module.exports = (gid, mid, url) => {
             let file = fs.createWriteStream(filepath);
             https.get(url, response => {                
                 response.pipe(file).on("finish", () => {
-                    resolve();
+                    resolve(filepath);
                 });
             });
         } else {
