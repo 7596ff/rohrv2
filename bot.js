@@ -5,7 +5,8 @@ const util = require("util");
 const fs = require("fs");
 const resched = require("./util/resched");
 
-rotate = require("./commands/rotate")
+const rotate = require("./commands/rotate");
+
 client.commands = {
     "ping": require("./commands/ping"),
     "rotate": rotate,
@@ -22,7 +23,8 @@ client.commands = {
     "meme": require("./commands/meme"),
     "eval": require("./commands/eval"),
     "tomato": rotate,
-    "🍅": rotate
+    "🍅": rotate,
+    "🥔": rotate
 };
 
 client.tasks = {};
