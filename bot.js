@@ -4,6 +4,18 @@ var client = new Eris(config.token);
 const util = require("util");
 const fs = require("fs");
 const resched = require("./util/resched");
+const redis = require("redis");
+var rclient = redis.createClient();
+var rsub = redis.createClient();
+
+rsub.subscribe("__keyevent@0__:expired", (err) => {
+    if (err) {
+        console.log(err);
+        process.exit(1);
+    } else {
+        console.log("subscribed to keyevent expired");
+    }
+});
 
 const rotate = require("./commands/rotate");
 
@@ -71,6 +83,25 @@ client.on("messageCreate", message => {
         message.content = splitContent.join(" ");
         client.commands[splitContent[0]](message);
     }
+
+    if (message.channel.guild.id != "198101180180594688") return;
+
+    rclient.get(`katze:activity:${message.member.id}`, (err, reply) => {
+        if (!reply) {
+            rclient.setex(`katze:activity:${message.member.id}`, 86400, true);
+            message.member.addRole("299627728825483264").catch((err) => console.log(err));
+        }
+    });
+});
+
+rsub.on("message", (channel, message) => {
+    if (!message.startsWith("katze:activity")) return;
+
+    const id = message.split(":")[2];
+
+    let member = client.guilds.get("198101180180594688").members.get(id);
+    if (!member) return;
+    if (member.roles.includes("299627728825483264")) member.removeRole("299627728825483264");
 });
 
 process.on("exit", () => {
