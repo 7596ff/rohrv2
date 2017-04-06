@@ -87,7 +87,7 @@ client.on("messageCreate", message => {
     if (message.channel.guild.id != "198101180180594688") return;
 
     rclient.get(`katze:activity:${message.member.id}`, (err, reply) => {
-        if (!reply) {
+        if (!reply && !message.member.bot) {
             rclient.setex(`katze:activity:${message.member.id}`, 86400, true);
             message.member.addRole("299627728825483264").catch((err) => console.log(err));
         }
