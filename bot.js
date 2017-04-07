@@ -94,6 +94,10 @@ client.on("messageCreate", message => {
     });
 });
 
+client.on("guildMemberRemove", (guild, member) => {
+    rclient.expire(`katze:activity:${member.id}`, 1);
+});
+
 rsub.on("message", (channel, message) => {
     if (!message.startsWith("katze:activity")) return;
 
