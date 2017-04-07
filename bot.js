@@ -109,7 +109,7 @@ rsub.on("message", (channel, message) => {
     const memberID = message.split(":")[3];
 
     let guild = client.guilds.get(guildID);
-    if (!gulid) return;
+    if (!guild) return;
     let member = guild.members.get(memberID);
     if (member) {
         let roleID = client.gcfg[guildID].activityRole;
