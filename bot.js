@@ -36,7 +36,8 @@ client.commands = {
     "eval": require("./commands/eval"),
     "tomato": rotate,
     "🍅": rotate,
-    "🥔": rotate
+    "🥔": rotate,
+    "activity": require("./commands/activity")
 };
 
 client.tasks = {};
@@ -73,7 +74,7 @@ client.on("guildRemove", guild => {
     });
 });
 
-client.on("messageCreate", message => {
+client.on("messageCreate", (message) => {
     if (!message.channel.guild) return;
     if (!message.member || !message.author) return;
 
@@ -84,28 +85,36 @@ client.on("messageCreate", message => {
         client.commands[splitContent[0]](message);
     }
 
-    if (message.channel.guild.id != "198101180180594688") return;
-
-    rclient.get(`katze:activity:${message.member.id}`, (err, reply) => {
-        if (!reply && !message.member.bot) {
-            rclient.setex(`katze:activity:${message.member.id}`, 86400, true);
-            message.member.addRole("299627728825483264").catch((err) => console.log(err));
-        }
-    });
+    let roleID = client.gcfg[message.channel.guild.id].activityRole;
+    let timeout = client.gcfg[message.channel.guild.id].activityTimeout;
+    if (roleID) {
+        let key = `katze:activity:${message.channel.guild.id}:${message.member.id}`;
+        rclient.get(key, (err, reply) => {
+            if (!reply && !message.member.bot) {
+                rclient.setex(key, timeout || 86400, true);
+                message.member.addRole(roleID).catch((err) => console.log(err));
+            }
+        });
+    }
 });
 
 client.on("guildMemberRemove", (guild, member) => {
-    rclient.expire(`katze:activity:${member.id}`, 1);
+    rclient.expire(`katze:activity:${guild.id}:${member.id}`, 1);
 });
 
 rsub.on("message", (channel, message) => {
     if (!message.startsWith("katze:activity")) return;
 
-    const id = message.split(":")[2];
+    const guildID = message.split(":")[2];
+    const memberID = message.split(":")[3];
 
-    let member = client.guilds.get("198101180180594688").members.get(id);
-    if (!member) return;
-    if (member.roles.includes("299627728825483264")) member.removeRole("299627728825483264");
+    let guild = client.guilds.get(guildID);
+    if (!gulid) return;
+    let member = guild.members.get(memberID);
+    if (member) {
+        let roleID = client.gcfg[guildID].activityRole;
+        if (member.roles.includes(roleID)) member.removeRole(roleID);
+    }
 });
 
 process.on("exit", () => {
