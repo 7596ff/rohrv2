@@ -94,9 +94,9 @@ client.on("messageCreate", (message) => {
         if (roleID) {
             let key = `katze:activity:${message.channel.guild.id}:${message.member.id}`;
             rclient.get(key, (err, reply) => {
-                if (!reply && !message.member.bot) {
+                if (!message.member.bot) {
                     rclient.setex(key, timeout || 86400, true);
-                    message.member.addRole(roleID).catch((err) => console.log(err));
+                    if (!reply) message.member.addRole(roleID).catch((err) => console.log(err));
                 }
             });
         }
