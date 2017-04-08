@@ -75,26 +75,31 @@ client.on("guildRemove", guild => {
 });
 
 client.on("messageCreate", (message) => {
-    if (!message.channel.guild) return;
-    if (!message.member || !message.author) return;
+    if (!message.channel.guild) {
+        if (client.guilds.get("273677434262519809").members.get(message.author.id)) {
+            client.createMessage("300095452156657664", message.content);
+        }
+    } else {
+        if (!message.member || !message.author) return;
 
-    let splitContent = message.content.split(" ");
+        let splitContent = message.content.split(" ");
 
-    if (splitContent.shift() == config.defaultPrefix && splitContent[0] in client.commands) {
-        message.content = splitContent.join(" ");
-        client.commands[splitContent[0]](message);
-    }
+        if (splitContent.shift() == config.defaultPrefix && splitContent[0] in client.commands) {
+            message.content = splitContent.join(" ");
+            client.commands[splitContent[0]](message);
+        }
 
-    let roleID = client.gcfg[message.channel.guild.id].activityRole;
-    let timeout = client.gcfg[message.channel.guild.id].activityTimeout;
-    if (roleID) {
-        let key = `katze:activity:${message.channel.guild.id}:${message.member.id}`;
-        rclient.get(key, (err, reply) => {
-            if (!reply && !message.member.bot) {
-                rclient.setex(key, timeout || 86400, true);
-                message.member.addRole(roleID).catch((err) => console.log(err));
-            }
-        });
+        let roleID = client.gcfg[message.channel.guild.id].activityRole;
+        let timeout = client.gcfg[message.channel.guild.id].activityTimeout;
+        if (roleID) {
+            let key = `katze:activity:${message.channel.guild.id}:${message.member.id}`;
+            rclient.get(key, (err, reply) => {
+                if (!reply && !message.member.bot) {
+                    rclient.setex(key, timeout || 86400, true);
+                    message.member.addRole(roleID).catch((err) => console.log(err));
+                }
+            });
+        }
     }
 });
 
