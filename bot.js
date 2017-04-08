@@ -75,11 +75,15 @@ client.on("guildRemove", guild => {
 });
 
 client.on("messageCreate", (message) => {
+    if (message.author.id == client.user.id) return;
+
     if (!message.channel.guild) {
         if (client.guilds.get("273677434262519809").members.get(message.author.id)) {
             rclient.get(`katze:vote:${message.author.id}`, (err, reply) => {
                 if (reply) return;
-                client.createMessage("300095452156657664", message.content);
+                client.createMessage("300095452156657664", message.content).then(() => {
+                    message.channel.createMessage("your vote has been recorded :3");
+                });
                 rclient.set(`katze:vote:${message.author.id}`, true);
             });
         }
