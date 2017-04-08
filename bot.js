@@ -77,7 +77,11 @@ client.on("guildRemove", guild => {
 client.on("messageCreate", (message) => {
     if (!message.channel.guild) {
         if (client.guilds.get("273677434262519809").members.get(message.author.id)) {
-            client.createMessage("300095452156657664", message.content);
+            rclient.get(`katze:vote:${message.author.id}`, (err, reply) => {
+                if (reply) return;
+                client.createMessage("300095452156657664", message.content);
+                rclient.set(`katze:vote:${message.author.id}`, true);
+            });
         }
     } else {
         if (!message.member || !message.author) return;
