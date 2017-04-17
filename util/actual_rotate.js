@@ -31,6 +31,11 @@ function meme(data, gcfg) {
 }
 
 module.exports = (guild, channel, dirlist, gcfg, path) => {
+    if (gcfg[guild.id].dont) {
+        channel.createMessage("cant sorry :(");
+        return;
+    }
+
     let to_rotate = dirlist[Math.floor(Math.random() * dirlist.length)];
     path = `${path}/${to_rotate}`;
 

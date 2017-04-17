@@ -37,7 +37,9 @@ client.commands = {
     "tomato": rotate,
     "🍅": rotate,
     "🥔": rotate,
-    "activity": require("./commands/activity")
+    "activity": require("./commands/activity"),
+    "dont": require("./commands/dont"),
+    "do": require("./commands/do")
 };
 
 client.tasks = {};
