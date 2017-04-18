@@ -32,7 +32,7 @@ function meme(data, gcfg) {
 
 module.exports = (guild, channel, dirlist, gcfg, path) => {
     if (gcfg[guild.id].dont) {
-        channel.createMessage("cant sorry :(");
+        if (channel) channel.createMessage("cant sorry :(");
         return;
     }
 
