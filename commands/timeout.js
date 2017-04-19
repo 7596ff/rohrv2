@@ -11,6 +11,7 @@ async function timeout(message, client) {
         try {
             await client.pg.updateTimeout(message.channel.guild.id, timeout);
             resched(client, message.channel.guild.id);
+            delete client.gcfg[message.channel.guild.id];
             message.channel.createMessage(`:white_check_mark: timeout set to ${timeout}`);
         } catch (err) {
             console.error(err);

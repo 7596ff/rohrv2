@@ -16,7 +16,7 @@ var rsub = Redis.createClient();
 client.postgres = new Postgres.Client(config.pg);
 client.pg = new Pg(client.postgres);
 
-var gcfg = {};
+client.gcfg = {};
 
 rsub.subscribe("__keyevent@0__:expired", (err) => {
     if (err) {
@@ -112,12 +112,13 @@ client.on("messageCreate", (message) => {
     if (message.author.id == client.user.id) return;
     if (!message.member || !message.author) return;
 
-    if (gcfg[message.channel.guild.id]) {
-        message.gcfg = gcfg[message.channel.guild.id];
+    if (client.gcfg[message.channel.guild.id]) {
+        message.gcfg = client.gcfg[message.channel.guild.id];
         processMessage(message);
     } else {
         client.pg.getGcfg(message.channel.guild.id).catch((err) => console.error(err)).then((gcfg) => {
-            message.gcfg = gcfg;
+            client.gcfg[message.channel.guild.id] = JSON.parse(JSON.stringify(gcfg));
+            message.gcfg = client.gcfg[message.channel.guild.id];
             processMessage(message);
         });
     }
