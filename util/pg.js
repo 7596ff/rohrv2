@@ -141,8 +141,17 @@ class Pg {
                     1,
                     { "who": [firstID] }
                 ]
-            }).catch((err) => reject(err)).then((res) => resolve(res.rows[0]));
+            }).catch((err) => reject(err)).then((res) => {
+                res.rows[0].dne = true;
+                resolve(res.rows[0]);
+            });
         });
+    }
+
+    addPost(msgID, postID) {
+        return this.postgres.query({
+            "text": "UPDATE starboard SET post = $1 WHERE msg = $2"
+        })
     }
 
     incrementStar(msgID, whoID) {
@@ -182,7 +191,10 @@ class Pg {
                     this.postgres.query({
                         "text": "DELETE FROM starboard WHERE msg = $1;",
                         "values": [msgID]
-                    }).catch((err) => reject(err)).then((res) => resolve("dne"));
+                    }).catch((err) => reject(err)).then((res) => resolve({
+                        "dne": true,
+                        "post": res.post
+                    }));
                 }
             });
         });

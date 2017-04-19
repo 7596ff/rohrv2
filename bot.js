@@ -137,8 +137,12 @@ async function onReactionChange(message, emoji, userID, add) {
         try {
             message = await client.getMessage(message.channel.id, message.id);
         } catch (err) {
-            console.error(err);
-            console.error("error getting message within reactions");
+            if (err.response.code != 10008) {
+                console.error(err);
+                console.error("error getting message within reactions");
+            }
+
+            return;
         }
     }
 
@@ -149,6 +153,7 @@ async function onReactionChange(message, emoji, userID, add) {
     } catch (err) {
         console.error(err);
         console.error("error caching gcfg within reactions");
+        return;
     }
 
     if (!gcfg.starboard || gcfg.starboard == 0) return;
@@ -163,7 +168,7 @@ async function onReactionChange(message, emoji, userID, add) {
     }
 
     let row;
-    if (add === true & status == "dne") {
+    if (add === true && status == "dne") {
         try {
             row = await client.pg.createStar(guildID, message.member.id, message.channel.id, message.id,
                                              message.member.username, message.channel.name, userID);
@@ -185,6 +190,22 @@ async function onReactionChange(message, emoji, userID, add) {
             console.error(err);
             console.error("error decrementing star");
         }
+    }
+
+    if (row.dne === true && row.post > 0) {
+        client.deleteMessage(gcfg.starboard, row.post).catch((err) => {
+            console.error(err);
+            console.error(`couldn't delete starboard post. channel: ${gcfg.starboard}`);
+        });
+    } else if (row.dne === true) {
+        client.createMessage(gcfg.starboard, {
+            "content": message.content
+        }).catch((err) => {
+            console.error(err);
+            console.error(`couldn't create starboard post. channel: ${gcfg.starboard}`);
+        }).then((msg) => {
+
+        });
     }
 }
 
