@@ -6,7 +6,7 @@ class Pg {
     addGuild(guildID) {
         if (!guildID) return new Error("no guild ID");
         return this.postgres.query({
-            "text": "INSERT INTO guilds VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);",
+            "text": "INSERT INTO guilds (id, current, lasttime, timeout, meme, activityrole, dont, starboard, emoji) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);",
             "values": [guildID, 0, 0, 12, false, 0, false, 0, "⭐"]
         });
     }
@@ -128,7 +128,7 @@ class Pg {
     createStar(guildID, memberID, channelID, msgID, memberName, channelName, firstID) {
         return new Promise((resolve, reject) => {
             this.postgres.query({
-                "text": "INSERT INTO starboard VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);",
+                "text": "INSERT INTO starboard (date, guild, member, channel, msg, post, membername, channelname, stars, who) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);",
                 "values": [
                     Date.now(),
                     guildID,
@@ -142,16 +142,22 @@ class Pg {
                     { "who": [firstID] }
                 ]
             }).catch((err) => reject(err)).then((res) => {
-                res.rows[0].dne = true;
-                resolve(res.rows[0]);
+                this.postgres.query({
+                    "text": "SELECT * FROM starboard WHERE msg = $1;",
+                    "values": [msgID]
+                }).catch((err) => reject(err)).then((res) => {
+                    res.rows[0].dne = true;
+                    resolve(res.rows[0]);
+                });
             });
         });
     }
 
     addPost(msgID, postID) {
         return this.postgres.query({
-            "text": "UPDATE starboard SET post = $1 WHERE msg = $2"
-        })
+            "text": "UPDATE starboard SET post = $1 WHERE msg = $2",
+            "values": [postID, msgID]
+        });
     }
 
     incrementStar(msgID, whoID) {
@@ -167,7 +173,15 @@ class Pg {
                 this.postgres.query({
                     "text": "UPDATE starboard SET stars = (stars + 1), who = $1 WHERE msg = $2;",
                     "values": [{ "who": who }, msgID]
-                }).catch((err) => reject(err)).then((res) => resolve(res.rows[0]));
+                }).catch((err) => reject(err)).then((res) => {
+                    this.postgres.query({
+                        "text": "SELECT * FROM starboard WHERE msg = $1;",
+                        "values": [msgID]
+                    }).catch((err) => reject(err)).then((res) => {
+                        res.rows[0].dne = false;
+                        resolve(res.rows[0]);
+                    });
+                });
             });
         });
     }
@@ -186,16 +200,35 @@ class Pg {
                     this.postgres.query({
                         "text": "UPDATE starboard SET stars = (stars - 1), who = $1 WHERE msg = $2;",
                         "values": [{ "who": who }, msgID]
-                    }).catch((err) => reject(err)).then((res) => resolve(res.rows[0]));
+                    }).catch((err) => reject(err)).then((res) => {
+                        this.postgres.query({
+                            "text": "SELECT * FROM starboard WHERE msg = $1;",
+                            "values": [msgID]
+                        }).catch((err) => reject(err)).then((res) => {
+                            res.rows[0].dne = false;
+                            resolve(res.rows[0]);
+                        });
+                    });
                 } else {
-                    this.postgres.query({
-                        "text": "DELETE FROM starboard WHERE msg = $1;",
-                        "values": [msgID]
-                    }).catch((err) => reject(err)).then((res) => resolve({
-                        "dne": true,
-                        "post": res.post
-                    }));
+                    this.removeStar(msgID).then((res) => resolve(res)).catch((err) => reject(err));
                 }
+            });
+        });
+    }
+
+    removeStar(msgID) {
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                "text": "SELECT * FROM starboard WHERE msg = $1;",
+                "values": [msgID]
+            }).catch((err) => reject(err)).then((res) => {
+                this.postgres.query({
+                    "text": "DELETE FROM starboard WHERE msg = $1;",
+                    "values": [msgID]
+                }).catch((err) => reject(err)).then((res2) => resolve({
+                    "dne": true,
+                    "post": res.rows[0].post
+                }));
             });
         });
     }
