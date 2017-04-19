@@ -9,6 +9,7 @@ async function _do(message, client) {
     try {
         await client.pg.makeDo(message.channel.guild.id);
         resched(client, message.channel.guild.id);
+        delete client.gcfg[message.channel.guild.id];
         message.channel.createMessage(":white_check_mark: ok :)");
     } catch (err) {
         console.log(err);

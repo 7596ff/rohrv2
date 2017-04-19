@@ -9,6 +9,7 @@ async function dont(message, client) {
         try {
             await client.pg.makeDont(message.channel.guild.id);
             task.cancel();
+            delete client.gcfg[message.channel.guild.id];
             message.channel.createMessage(":white_check_mark: ok :(");
         } catch (err) {
             console.error(err);

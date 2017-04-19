@@ -17,6 +17,7 @@ function activity(message, client) {
             console.error(err);
             message.channel.createMessage(":x: something went wrong updating the activity role.");
         }).then(() => {
+            delete client.gcfg[message.channel.guild.id];
             message.channel.createMessage(`:white_check_mark: set new activity role to ${role.name}.`);
         });
     } else {
@@ -24,6 +25,7 @@ function activity(message, client) {
             console.error(err);
             message.channel.createMessage(":x: something went wrong updating the activity role.");
         }).then(() => {
+            delete client.gcfg[message.channel.guild.id];
             message.channel.createMessage(":white_check_mark: couldn't find this role!! activity role set to none.");
         });
     }
