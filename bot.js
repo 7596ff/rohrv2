@@ -54,8 +54,6 @@ client.commands = {
 
 client.tasks = {};
 
-client.gcfg = require("./gcfg.json");
-
 client.on("ready", () => {
     util.log("rohrv2 ready.");
     client.editStatus("online", { name: "hecking unbelieveable" });
@@ -67,22 +65,21 @@ client.once("ready", () => {
     });
 });
 
-client.on("guildCreate", guild => {
-    client.gcfg[guild.id] = {
-        "current": "none",
-        "timeout": 24
-    };
-
-    fs.writeFile("./gcfg.json", JSON.stringify(client.gcfg), (err) => {
-        if (err) util.error(err);
+client.on("guildCreate", (guild) => {
+    client.pg.addGuild(guild.id).catch((err) => {
+        console.error(err);
+        console.error(`couldn't add guild ${guild.id}/${guild.name} to db`);
+    }).then(() => {
+        console.log(`joined guild ${guild.id}/${guild.name}`);
     });
 });
 
-client.on("guildRemove", guild => {
-    delete client.gcfg[guild.id];
-
-    fs.writeFile("./gcfg.json", JSON.stringify(client.gcfg), (err) => {
-        if (err) util.error(err);
+client.on("guildDelete", (guild) => {
+    client.pg.removeGuild(guild.id).catch((err) => {
+        console.error(err);
+        console.error(`couldn't remove guild ${guild.id}/${guild.name} from db`);
+    }).then(() => {
+        console.log(`left guild ${guild.id}/${guild.name}`);
     });
 });
 
