@@ -21,14 +21,16 @@ module.exports = (client, gid) => {
         }
 
         if (files.length > 0) {
-            let rule = `0 */${client.gcfg[gid].timeout} * * *`;
+            client.pg.getGcfg(gid).catch((err) => console.error(err)).then((gcfg) => {
+                let rule = `0 */${gcfg.timeout} * * *`;
 
-            client.tasks[gid] = schedule.scheduleJob(rule, () => {
-                require("./actual_rotate")(client.guilds.get(gid), null, files, client.gcfg, __upone);
+                client.tasks[gid] = schedule.scheduleJob(rule, () => {
+                    require("./actual_rotate")(client.guilds.get(gid), null, files, gcfg, __upone);
+                });
+
+                util.log(`scheduled rotate for guild ${gid}/${gname}`);
+                util.log(`  images ${files.length}, timeout ${gcfg.timeout} (${rule})`);
             });
-
-            util.log(`scheduled rotate for guild ${gid}/${gname}`);
-            util.log(`  images ${files.length}, timeout ${client.gcfg[gid].timeout} (${rule})`);
         }
     });
 };

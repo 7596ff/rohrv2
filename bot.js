@@ -16,6 +16,8 @@ var rsub = Redis.createClient();
 client.postgres = new Postgres.Client(config.pg);
 client.pg = new Pg(client.postgres);
 
+var gcfg = {};
+
 rsub.subscribe("__keyevent@0__:expired", (err) => {
     if (err) {
         console.log(err);
@@ -60,9 +62,9 @@ client.on("ready", () => {
 });
 
 client.once("ready", () => {
-    for (let gid in client.gcfg) {
-        resched(client, gid);
-    }
+    client.guilds.forEach((guild) => {
+        resched(client, guild.id);
+    });
 });
 
 client.on("guildCreate", guild => {
@@ -84,40 +86,40 @@ client.on("guildRemove", guild => {
     });
 });
 
+function processMessage(message) {
+    let splitContent = message.content.split(" ");
+
+    if (splitContent.shift() == config.defaultPrefix && splitContent[0] in client.commands) {
+        message.content = splitContent.join(" ");
+        client.commands[splitContent[0]](message, client);
+    }
+
+    let roleID = client.gcfg[message.channel.guild.id].activityRole;
+    let timeout = client.gcfg[message.channel.guild.id].activityTimeout;
+    if (roleID) {
+        let key = `katze:activity:${message.channel.guild.id}:${message.member.id}`;
+        redis.get(key, (err, reply) => {
+            if (!message.member.bot) {
+                redis.setex(key, timeout || 86400, true);
+                if (!reply) message.member.addRole(roleID).catch((err) => console.log(err));
+            }
+        });
+    }
+}
+
 client.on("messageCreate", (message) => {
+    if (!message.channel.guild) return;
     if (message.author.id == client.user.id) return;
+    if (!message.member || !message.author) return;
 
-    if (!message.channel.guild) {
-        if (client.guilds.get("273677434262519809").members.get(message.author.id)) {
-            redis.get(`katze:vote:${message.author.id}`, (err, reply) => {
-                if (reply) return;
-                client.createMessage("300095452156657664", message.content).then(() => {
-                    message.channel.createMessage("your vote has been recorded :3");
-                });
-                redis.set(`katze:vote:${message.author.id}`, true);
-            });
-        }
+    if (gcfg[message.channel.guild.id]) {
+        message.gcfg = gcfg[message.channel.guild.id];
+        processMessage(message);
     } else {
-        if (!message.member || !message.author) return;
-
-        let splitContent = message.content.split(" ");
-
-        if (splitContent.shift() == config.defaultPrefix && splitContent[0] in client.commands) {
-            message.content = splitContent.join(" ");
-            client.commands[splitContent[0]](message, client);
-        }
-
-        let roleID = client.gcfg[message.channel.guild.id].activityRole;
-        let timeout = client.gcfg[message.channel.guild.id].activityTimeout;
-        if (roleID) {
-            let key = `katze:activity:${message.channel.guild.id}:${message.member.id}`;
-            redis.get(key, (err, reply) => {
-                if (!message.member.bot) {
-                    redis.setex(key, timeout || 86400, true);
-                    if (!reply) message.member.addRole(roleID).catch((err) => console.log(err));
-                }
-            });
-        }
+        client.pg.getGcfg(message.channel.guild.id).catch((err) => console.error(err)).then((gcfg) => {
+            message.gcfg = gcfg;
+            processMessage(message);
+        });
     }
 });
 
