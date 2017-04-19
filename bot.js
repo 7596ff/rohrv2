@@ -1,12 +1,17 @@
-const Eris = require("eris");
 const config = require("./config");
-var client = new Eris(config.token);
+
 const util = require("util");
 const fs = require("fs");
+
 const resched = require("./util/resched");
-const redis = require("redis");
-var rclient = redis.createClient();
-var rsub = redis.createClient();
+const Eris = require("eris");
+const Redis = require("redis");
+const Postgres = require("pg");
+
+var client = new Eris(config.token);
+var redis = Redis.createClient();
+var rsub = Redis.createClient();
+client.pg = new Postgres.Client(config.pg);
 
 rsub.subscribe("__keyevent@0__:expired", (err) => {
     if (err) {
@@ -81,12 +86,12 @@ client.on("messageCreate", (message) => {
 
     if (!message.channel.guild) {
         if (client.guilds.get("273677434262519809").members.get(message.author.id)) {
-            rclient.get(`katze:vote:${message.author.id}`, (err, reply) => {
+            redis.get(`katze:vote:${message.author.id}`, (err, reply) => {
                 if (reply) return;
                 client.createMessage("300095452156657664", message.content).then(() => {
                     message.channel.createMessage("your vote has been recorded :3");
                 });
-                rclient.set(`katze:vote:${message.author.id}`, true);
+                redis.set(`katze:vote:${message.author.id}`, true);
             });
         }
     } else {
@@ -103,9 +108,9 @@ client.on("messageCreate", (message) => {
         let timeout = client.gcfg[message.channel.guild.id].activityTimeout;
         if (roleID) {
             let key = `katze:activity:${message.channel.guild.id}:${message.member.id}`;
-            rclient.get(key, (err, reply) => {
+            redis.get(key, (err, reply) => {
                 if (!message.member.bot) {
-                    rclient.setex(key, timeout || 86400, true);
+                    redis.setex(key, timeout || 86400, true);
                     if (!reply) message.member.addRole(roleID).catch((err) => console.log(err));
                 }
             });
@@ -114,7 +119,7 @@ client.on("messageCreate", (message) => {
 });
 
 client.on("guildMemberRemove", (guild, member) => {
-    rclient.expire(`katze:activity:${guild.id}:${member.id}`, 1);
+    redis.expire(`katze:activity:${guild.id}:${member.id}`, 1);
 });
 
 rsub.on("message", (channel, message) => {
@@ -137,4 +142,12 @@ process.on("exit", () => {
     client.editStatus("invisible");
 });
 
-client.connect();
+client.pg.connect((err) => {
+    if (err) {
+        console.error(err);
+        process.exit(1);
+    }
+
+    console.log("pg ready");
+    client.connect();
+});
