@@ -1,6 +1,4 @@
-const fs = require("fs");
-
-module.exports = (message) => {
+function activity(message, client) {
     if (!message.member.permission.has("manageRoles")) {
         message.channel.createMessage(":octagonal_sign: u cant change the activity role sorry!");
         return;
@@ -15,16 +13,20 @@ module.exports = (message) => {
     role = message.channel.guild.roles.find((_role) => _role.name == role);
 
     if (role) {
-        message._client.gcfg[message.channel.guild.id].activityRole = role.id;
-        fs.writeFile("./gcfg.json", JSON.stringify(message._client.gcfg), (err) => {
-            if (err) console.error(err);
+        client.pg.updateActivity(message.channel.guild.id, role.id).catch((err) => {
+            console.error(err);
+            message.channel.createMessage(":x: something went wrong updating the activity role.");
+        }).then(() => {
             message.channel.createMessage(`:white_check_mark: set new activity role to ${role.name}.`);
         });
     } else {
-        message._client.gcfg[message.channel.guild.id].activityRole = false;
-        fs.writeFile("./gcfg.json", JSON.stringify(message._client.gcfg), (err) => {
-            if (err) console.error(err);
-            message.channel.createMessage(":x: can't find this role!!! activity role removed.");
+        client.pg.updateActivity(message.channel.guild.id, null).catch((err) => {
+            console.error(err);
+            message.channel.createMessage(":x: something went wrong updating the activity role.");
+        }).then(() => {
+            message.channel.createMessage(":white_check_mark: couldn't find this role!! activity role set to none.");
         });
     }
-};
+}
+
+module.exports = activity;

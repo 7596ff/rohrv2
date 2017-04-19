@@ -1,17 +1,17 @@
-const fs = require("fs");
-const util = require("util");
-
-module.exports = message => {
+async function meme(message, client) {
     if (!message.member.permission.has("manageGuild")) {
         message.channel.createMessage(":octagonal_sign: sorry no memes!");
         return;
     }
 
-    message._client.gcfg[message.channel.guild.id].meme = !message._client.gcfg[message.channel.guild.id].meme;
-    fs.writeFile("./gcfg.json", JSON.stringify(message._client.gcfg), (err) => {
-        if (err) util.error(err);
-        let msg = message._client.gcfg[message.channel.guild.id].meme ? "on" : "off";
+    try {
+        let res = await client.pg.flipMeme(message.channel.guild.id);
+        let msg = res.meme ? "on" : "off";
         message.channel.createMessage(`:white_check_mark: memes are ${msg}.`);
-    });
+    } catch (err) {
+        console.error(err);
+        message.channel.createMessage(`:x: something went wrong toggling meme, try again maybe`);
+    }
+}
 
-};
+module.exports = meme;
