@@ -3,6 +3,22 @@ class Pg {
         this.postgres = postgres;
     }
 
+    addGuild(guildID) {
+        if (!guildID) return new Error("no guild ID");
+        return this.postgres.query({
+            "text": "INSERT INTO guilds (id, current, lasttime, timeout, meme, activityrole, dont, starboard, emoji) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);",
+            "values": [guildID, 0, 0, 12, false, 0, false, 0, "⭐"]
+        });
+    }
+
+    removeGuild(guildID) {
+        if (!guildID) return new Error("no guild ID");
+        return this.postgres.query({
+            "text": "DELETE FROM guilds WHERE id = $1;",
+            "values": [guildID]
+        });
+    }
+
     getGcfg(guildID) {
         if (!guildID) return new Error("no guild ID");
         return new Promise((resolve, reject) => {
