@@ -16,8 +16,8 @@ module.exports = (message, client) => {
             return;
         }
 
-        if (message.author.id != message.channel.guild.ownerID && Date.now() <= gcfg.lasttime + 600000) {
-            let timeleft = require("pretty-ms")(gcfg.lasttime  + 600000 - Date.now());
+        if (message.author.id != message.channel.guild.ownerID && Date.now() <= parseInt(gcfg.lasttime) + 600000) {
+            let timeleft = require("pretty-ms")(parseInt(gcfg.lasttime) + 600000 - Date.now());
             message.channel.createMessage(`:octagonal_sign: pls wait! ${timeleft} left.`);
             return;
         }

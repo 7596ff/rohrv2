@@ -49,6 +49,7 @@ module.exports = (guild, channel, client, dirlist, gcfg, path) => {
                 }).then(() => {
                     if (channel) channel.createMessage(":recycle:");
                     util.log(`rotated on ${guild.id}/${guild.name}`);
+                    delete client.gcfg[guild.id];
                 })
             }).catch(err => util.error(err));  
         }).catch(err => {
