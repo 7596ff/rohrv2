@@ -3,12 +3,12 @@ const config = require("./config");
 const util = require("util");
 const fs = require("fs");
 
-const resched = require("./util/resched");
 const Eris = require("eris");
 const Redis = require("redis");
 const Postgres = require("pg");
 
 const Pg = require("./util/pg");
+const resched = require("./util/resched");
 
 var client = new Eris(config.token);
 var redis = Redis.createClient();
@@ -91,13 +91,12 @@ function processMessage(message) {
         client.commands[splitContent[0]](message, client);
     }
 
-    let roleID = client.gcfg[message.channel.guild.id].activityRole;
-    let timeout = client.gcfg[message.channel.guild.id].activityTimeout;
-    if (roleID) {
+    let roleID = client.gcfg[message.channel.guild.id].activityrole;
+    if (roleID && roleID != 0) {
         let key = `katze:activity:${message.channel.guild.id}:${message.member.id}`;
         redis.get(key, (err, reply) => {
             if (!message.member.bot) {
-                redis.setex(key, timeout || 86400, true);
+                redis.setex(key, 86400, true);
                 if (!reply) message.member.addRole(roleID).catch((err) => console.log(err));
             }
         });
@@ -133,11 +132,14 @@ rsub.on("message", (channel, message) => {
 
     let guild = client.guilds.get(guildID);
     if (!guild) return;
+
     let member = guild.members.get(memberID);
-    if (member) {
-        let roleID = client.gcfg[guildID].activityRole;
+    if (!member) return;
+
+    client.pg.getGcfg(guildID).catch((err) => console.error(err)).then((gcfg) => {
+        let roleID = gcfg.activityrole;
         if (member.roles.includes(roleID)) member.removeRole(roleID);
-    }
+    });
 });
 
 process.on("exit", () => {
