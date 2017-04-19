@@ -8,10 +8,13 @@ const Eris = require("eris");
 const Redis = require("redis");
 const Postgres = require("pg");
 
+const Pg = require("./util/pg");
+
 var client = new Eris(config.token);
 var redis = Redis.createClient();
 var rsub = Redis.createClient();
-client.pg = new Postgres.Client(config.pg);
+client.postgres = new Postgres.Client(config.pg);
+client.pg = new Pg(client.postgres);
 
 rsub.subscribe("__keyevent@0__:expired", (err) => {
     if (err) {
@@ -142,12 +145,12 @@ process.on("exit", () => {
     client.editStatus("invisible");
 });
 
-client.pg.connect((err) => {
+client.postgres.connect((err) => {
     if (err) {
         console.error(err);
         process.exit(1);
     }
 
-    console.log("pg ready");
+    console.log("postgres ready");
     client.connect();
 });
