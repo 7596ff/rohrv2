@@ -104,7 +104,7 @@ client.on("messageCreate", (message) => {
 
         if (splitContent.shift() == config.defaultPrefix && splitContent[0] in client.commands) {
             message.content = splitContent.join(" ");
-            client.commands[splitContent[0]](message);
+            client.commands[splitContent[0]](message, client);
         }
 
         let roleID = client.gcfg[message.channel.guild.id].activityRole;

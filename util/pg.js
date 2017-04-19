@@ -50,7 +50,7 @@ class Pg {
     makeDont(guildID) {
         if (!guildID) return new Error("no gulid ID");
         return this.postgres.query({
-            "text": "UPPDATE guilds SET dont = t WHERE id = $1;",
+            "text": "UPDATE guilds SET dont = 't' WHERE id = $1;",
             "values": [guildID]
         });
     }
@@ -58,7 +58,7 @@ class Pg {
     makeDo(guildID) {
         if (!guildID) return new Error("no gulid ID");
         return this.postgres.query({
-            "text": "UPPDATE guilds SET dont = f WHERE id = $1;",
+            "text": "UPDATE guilds SET dont = 'f' WHERE id = $1;",
             "values": [guildID]
         });
     }
@@ -75,7 +75,7 @@ class Pg {
         if (!guildID) return new Error("no gulid ID");
         return this.postgres.query({
             "text": "UPDATE guilds SET emoji = $1 WHERE id = $2;",
-            "values": [emoji || ⭐, guildID]
+            "values": [emoji || "⭐", guildID]
         });
     }
 }
