@@ -3,6 +3,18 @@ class Pg {
         this.postgres = postgres;
     }
 
+    getGcfg(guildID) {
+        if (!guildID) return new Error("no guild ID");
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                "text": "SELECT * FROM guilds WHERE id = $1;",
+                "values": [guildID]
+            }).catch((err) => reject(err)).then((res) => {
+                resolve(res.rows[0]);
+            });
+        });
+    }
+
     updateCurrent(guildID, imageID) {
         if (!guildID) return new Error("no gulid ID");
         return this.postgres.query({

@@ -3,9 +3,9 @@ const fs = require("fs");
 const upone = require("../util/upone");
 const actual_rotate = require("../util/actual_rotate");
 
-module.exports = (message) => {
+module.exports = (message, client) => {
     let gid = message.channel.guild.id;
-    let gcfg = message._client.gcfg[gid];
+    let gcfg = message.gcfg;
     let __upone = `${upone(__dirname)}/guilds/${gid}`;
 
     let dirlist = [];
@@ -29,9 +29,9 @@ module.exports = (message) => {
 
         if (idlist.indexOf(gcfg.current) != -1) {
             dirlist.splice(idlist.indexOf(gcfg.current), 1);
-            actual_rotate(message.channel.guild, message.channel, dirlist, message._client.gcfg, __upone);
+            actual_rotate(message.channel.guild, message.channel, client, dirlist, message.gcfg, __upone);
         } else {
-            actual_rotate(message.channel.guild, message.channel, dirlist, message._client.gcfg, __upone);
+            actual_rotate(message.channel.guild, message.channel, client, dirlist, message.gcfg, __upone);
         }
     });
 };

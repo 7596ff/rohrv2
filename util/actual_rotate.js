@@ -30,8 +30,8 @@ function meme(data, gcfg) {
     });
 }
 
-module.exports = (guild, channel, dirlist, gcfg, path) => {
-    if (gcfg[guild.id].dont) {
+module.exports = (guild, channel, client, dirlist, gcfg, path) => {
+    if (gcfg.dont) {
         if (channel) channel.createMessage("cant sorry :(");
         return;
     }
@@ -40,19 +40,16 @@ module.exports = (guild, channel, dirlist, gcfg, path) => {
     path = `${path}/${to_rotate}`;
 
     fs.readFile(path, (err, data) => {
-        meme(data, gcfg[guild.id]).then(data => {
+        meme(data, gcfg).then(data => {
             guild.edit({
                 icon: "data:image/jpg;base64," + data.toString("base64")
             }).then(guild => {
-                if (channel) channel.createMessage(":recycle:");
-                util.log(`rotated on ${guild.id}/${guild.name}`);
-
-                gcfg[guild.id].lasttime = Date.now();
-                gcfg[guild.id].current = to_rotate.split(".")[0];
-
-                fs.writeFile("./gcfg.json", JSON.stringify(gcfg), (err) => {
-                    if (err) util.log(err);
-                });
+                client.pg.updateCurrent(guild.id, to_rotate.split(".")[0]).catch((err) => {
+                    console.error(err);
+                }).then(() => {
+                    if (channel) channel.createMessage(":recycle:");
+                    util.log(`rotated on ${guild.id}/${guild.name}`);
+                })
             }).catch(err => util.error(err));  
         }).catch(err => {
             util.error(err);
