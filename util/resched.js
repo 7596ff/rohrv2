@@ -25,7 +25,7 @@ module.exports = (client, gid) => {
                 let rule = `0 */${gcfg.timeout} * * *`;
 
                 client.tasks[gid] = schedule.scheduleJob(rule, () => {
-                    require("./actual_rotate")(client.guilds.get(gid), null, files, gcfg, __upone);
+                    require("./actual_rotate")(client.guilds.get(gid), null, client, files, gcfg, __upone);
                 });
 
                 util.log(`scheduled rotate for guild ${gid}/${gname}`);
