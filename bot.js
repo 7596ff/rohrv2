@@ -9,6 +9,7 @@ const Postgres = require("pg");
 
 const Pg = require("./util/pg");
 const resched = require("./util/resched");
+const starboardEmbed = require("./util/starboardEmbed");
 
 var client = new Eris(config.token);
 var redis = Redis.createClient();
@@ -85,41 +86,6 @@ client.on("guildDelete", (guild) => {
     });
 });
 
-function starboardEmbed(message) {
-    let embed = {
-        "author": {
-            "icon_url": message.member.avatarURL,
-            "name": message.member.nick || message.member.username
-        },
-        "description": message.content || "",
-        "footer": {
-            "text": `ID: ${message.id}`
-        },
-        "timestamp": new Date(message.timestamp)
-    };
-
-    if (message.member.roles.length > 0) {
-        let colorRole = message.member.roles
-            .map((role) => message.channel.guild.roles.get(role))
-            .sort((a, b) => b.position - a.position)
-            .find((role) => role.color != 0);
-        embed.color = colorRole ? colorRole.color : 0;
-    }
-
-    let matches = message.content.match(/(https?:\/\/.*\.(?:png|jpg|gif|jpeg))/g);
-    if (matches) embed.image = { "url": matches[0] };
-
-    if (message.attachments.length > 0) {
-        if (message.attachments[0].url.match(/(https?:\/\/.*\.(?:png|jpg|gif|jpeg))/g)) {
-            embed.image = { "url": message.attachments[0].url };
-        }
-
-        embed.description += `[Attachment](${message.attachments[0].url})`;
-    }
-
-    return embed;
-}
-
 function cacheGcfg(guildID) {
     return new Promise((resolve, reject) => {
         if (client.gcfg[guildID] && !client.gcfg[guildID].expired) {
@@ -170,10 +136,7 @@ client.on("messageUpdate", (message) => {
             console.log("err getting star status within message update");
         }).then((res) => {
             if (res != "dne" && gcfg.starboard > 0) {
-                client.editMessage(gcfg.starboard, res.post, {
-                    "content": `:star: **${res.stars}** <#${message.channel.id}>`,
-                    "embed": starboardEmbed(message)
-                });
+                client.editMessage(gcfg.starboard, res.post, starboardEmbed(message, res.stars));
             }
         });
     });
@@ -259,10 +222,7 @@ async function onReactionChange(message, emoji, userID, add) {
             console.error(`couldn't delete starboard post. channel: ${gcfg.starboard}`);
         });
     } else if (row.dne === true) {
-        client.createMessage(gcfg.starboard, {
-            "content": `:star: **${row.stars}** <#${message.channel.id}>`,
-            "embed": starboardEmbed(message)
-        }).catch((err) => {
+        client.createMessage(gcfg.starboard, starboardEmbed(message, row.stars)).catch((err) => {
             console.error(`couldn't create starboard post. channel: ${gcfg.starboard}`);
         }).then((msg) => {
             client.pg.addPost(message.id, msg.id).catch((err) => {
@@ -271,10 +231,7 @@ async function onReactionChange(message, emoji, userID, add) {
         });
     } else {
         if (row.post == 0) return;
-        client.editMessage(gcfg.starboard, row.post, {
-            "content": `:star: **${row.stars}** <#${message.channel.id}>`,
-            "embed": starboardEmbed(message)
-        }).catch((err) => {
+        client.editMessage(gcfg.starboard, row.post, starboardEmbed(message, row.stars)).catch((err) => {
             console.error("couldn't edit starboard post");
         });
     }
