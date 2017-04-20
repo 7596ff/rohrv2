@@ -102,11 +102,11 @@ function starboardEmbed(message) {
             .sort((a, b) => b.position - a.position)[0].color;
     }
 
-    let matches = message.content.match(/(https?:\/\/.*\.(?:png|jpg|gif|jpeg))/gi);
+    let matches = message.content.match(/(https?:\/\/.*\.(?:png|jpg|gif|jpeg))/g);
     if (matches) embed.image = { "url": matches[0] };
 
     if (message.attachments.length > 0) {
-        if (message.attachments[0].url.match(/(https?:\/\/.*\.(?:png|jpg|gif|jpeg))/gi)) {
+        if (message.attachments[0].url.match(/(https?:\/\/.*\.(?:png|jpg|gif|jpeg))/g)) {
             embed.image = { "url": message.attachments[0].url };
         } else {
             embed.description += `[Attachment](${message.attachments[0].url})`;
@@ -218,8 +218,6 @@ async function onReactionChange(message, emoji, userID, add) {
         }
     }
 
-    if (message.member.id == userID) return;
-
     let gcfg;
     try {
         gcfg = await cacheGcfg(guildID);
@@ -231,6 +229,25 @@ async function onReactionChange(message, emoji, userID, add) {
 
     if (!gcfg.starboard || gcfg.starboard == 0) return;
     if (emoji != gcfg.emoji) return;
+
+    if (message.channel.id == gcfg.starboard) {
+        try {
+            let ch = message.content.find(/\d{5,}/g);
+            let me = message.embeds[0].footer.find(/\d{5,}/g);
+            if (!(ch && me)) return;
+
+            message = await client.getMessage(ch, me);
+        } catch (err) {
+            if (err.response.code != 10008) {
+                console.error(err);
+                console.error("error getting message within reactions");
+            }
+
+            return;
+        }
+    }
+
+    if (message.member.id == userID) return;
 
     let status;
     try {
