@@ -282,6 +282,17 @@ class Pg {
             });
         });
     }
+
+    checkStarWho(messageID) {
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                "text": "SELECT who FROM starboard WHERE msg = $1;",
+                "values": [messageID]
+            }).catch((err) => reject(err)).then((res) => {
+                resolve(res.rows[0].who.who);
+            });
+        });
+    }
 }
 
 module.exports = Pg;
