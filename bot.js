@@ -185,8 +185,26 @@ async function onReactionChange(message, emoji, userID, add) {
 
     if (!gcfg.starboard || gcfg.starboard == 0) return;
     if (emoji != gcfg.emoji) return;
-    if (message.channel.id == gcfg.starboard) return;
     if (message.member.id == userID) return;
+
+    if (message.channel.id == gcfg.starboard) {
+
+        if (add === false) return;
+        if (!message.channel.guild.channels.get(message.channel.id).guild.members.get(client.user.id).permission.has("manageMessages")) return;
+
+        try {
+            let ch = message.content.match(/\d{5,}/g)[0];
+            let me = message.embeds[0].footer.text.match(/\d{5,}/g)[0];
+            if (!(ch && me)) return;
+
+            await client.removeMessageReaction(message.channel.id, message.id, emoji, userID);
+            message = await client.getMessage(ch, me);
+            await onReactionChange(message, { "name": emoji }, userID, true);
+        } catch (err) {
+            console.error("couldn't get message within reaction change");
+        }
+        return;
+    }
 
     let status;
     try {
