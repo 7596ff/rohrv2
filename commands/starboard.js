@@ -30,6 +30,29 @@ const subcommands = {
             console.error(`error updating starboard in guild ${message.channel.guild.id}/${message.channel.guild.name}`);
             message.channel.createMessage(":x: something went wrong setting the starboard, try again maybe");
         }
+    },
+    "clean": async function(message, client, args) {
+        let threshold = parseInt(args[0]);
+        if (isNaN(threshold)) {
+            await message.channel.createMessage("please supply a numeric threshold!");
+            return;
+        }
+
+        if (threshold > 3) {
+            await message.channel.createMessage("i think that threshold is too high!! you'll delete some actually funny stuff!");
+            return;
+        }
+
+        try {
+            let res = await client.pg.cleanStars(message.channel.guild.id, threshold);
+            let promises = res.map((row) => client.deleteMessage(message.gcfg.starboard, row.post));
+            let deleted = await Promise.all(promises);
+            await message.channel.createMessage(`:white_check_mark: deleted ${deleted.length || promises.length} starboard post(s).`);
+        } catch (err) {
+            console.error(err);
+            console.error("err deleting stars within starboard clean");
+            message.channel.createMessage("something went wrong, try again maybe?");
+        }
     }
 }
 
