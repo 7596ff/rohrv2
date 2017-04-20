@@ -250,6 +250,21 @@ class Pg {
             });
         });
     }
+
+    getStarStats(guildID) {
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                "text": "SELECT * FROM starboard WHERE guild = $1 ORDER BY stars DESC;",
+                "values": [guildID]
+            }).catch((err) => reject(err)).then((res) => {
+                res.rows.forEach((row) => {
+                    row.who = row.who.who;
+                });
+
+                resolve(res.rows);
+            });
+        });
+    }
 }
 
 module.exports = Pg;
