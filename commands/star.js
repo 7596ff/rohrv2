@@ -100,6 +100,29 @@ const subcommands = {
             console.error("couldn't fetch star from within star show");
             message.channel.createMessage("something went wrong, try again maybe?");
         }
+    },
+    "who": async function(message, client, args) {
+        try {
+            if (!args[0]) {
+                await message.channel.createMessage("please supply a message id!!");
+                return;
+            }
+
+            await message.channel.sendTyping();
+
+            let who = await client.pg.checkStarWho(args[0]);
+            let actuallyWho = who
+                .map((id) => client.users.get(id))
+                .map((user) => user)
+                .map((user) => `${user.username}#${user.discriminator}`)
+                .join(", ");
+
+            await message.channel.createMessage(actuallyWho)
+        } catch (err) {
+            console.error(err);
+            console.error("err sending who within starboard who");
+            message.channel.createMessage("something went wrong. try again maybe?");
+        }
     }
 }
 
