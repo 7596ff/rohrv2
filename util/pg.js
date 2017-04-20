@@ -265,6 +265,23 @@ class Pg {
             });
         });
     }
+
+    cleanStars(guildID, threshold, time = 604800000) {
+        return new Promise((resolve, reject) => {
+            let then = Date.now() - time;
+            this.postgres.query({
+                "text": "SELECT * FROM starboard WHERE guild = $1 AND stars <= $2 AND date >= $3;",
+                "values": [guildID, threshold, then]
+            }).catch((err) => reject(err)).then((res) => {
+                this.postgres.query({
+                    "text": "DELETE FROM starboard WHERE guild = $1 AND stars <= $2 AND date >= $3;",
+                    "values": [guildID, threshold, then]
+                }).catch((err) => reject(err)).then((res2) => {
+                    resolve(res.rows);
+                });
+            });
+        });
+    }
 }
 
 module.exports = Pg;

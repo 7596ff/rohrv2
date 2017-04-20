@@ -6,7 +6,7 @@ async function getFrequency(field, array) {
     let res = {};
     array.forEach((element) => {
         if (field) {
-            res[element[field]] ? res[element[field]] += 1 : res[element[field]] = 1;    
+            res[element[field]] ? res[element[field]] += element.stars : res[element[field]] = element.stars;
         } else {
             res[element] ? res[element] += 1 : res[element] = 1;
         }
@@ -47,6 +47,7 @@ const subcommands = {
                     "icon_url": message.channel.guild.iconURL,
                     "name": `Star stats in ${message.channel.guild.name}`
                 },
+                "description": `Total Stars: **${rows.length}**`,
                 "fields": [{
                     "name": "Top Stars",
                     "value": rows
