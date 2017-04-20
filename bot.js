@@ -49,7 +49,9 @@ client.commands = {
     "🥔": rotate,
     "activity": require("./commands/activity"),
     "dont": require("./commands/dont"),
-    "do": require("./commands/do")
+    "do": require("./commands/do"),
+    "starboard": require("./commands/starboard"),
+    "star": require("./commands/star")
 };
 
 client.tasks = {};
@@ -118,7 +120,7 @@ function starboardEmbed(message) {
 
 function cacheGcfg(guildID) {
     return new Promise((resolve, reject) => {
-        if (client.gcfg[guildID]) {
+        if (client.gcfg[guildID] && !client.gcfg[guildID].expired) {
             resolve(JSON.parse(JSON.stringify(client.gcfg[guildID])));
         } else {
             client.pg.getGcfg(guildID).catch((err) => reject(err)).then((gcfg) => {

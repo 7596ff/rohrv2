@@ -86,16 +86,34 @@ class Pg {
     }
 
     updateStarboardChannel(guildID, channelID) {
-        return this.postgres.query({
-            "text": "UPDATE guilds SET starboard = $1 WHERE id = $2;",
-            "values": [channelID || 0, guildID]
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                "text": "UPDATE guilds SET starboard = $1 WHERE id = $2;",
+                "values": [channelID || 0, guildID]
+            }).catch((err) => reject(err)).then((res) => {
+                this.postgres.query({
+                    "text": "SELECT starboard FROM guilds WHERE id = $1;",
+                    "values": [guildID]
+                }).catch((err) => reject(err)).then((res) => {
+                    resolve(res.rows[0]);
+                });
+            })
         });
     }
 
     updateStarboardEmoji(guildID, emoji) {
-        return this.postgres.query({
-            "text": "UPDATE guilds SET emoji = $1 WHERE id = $2;",
-            "values": [emoji || "⭐", guildID]
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                "text": "UPDATE guilds SET emoji = $1 WHERE id = $2;",
+                "values": [emoji || "⭐", guildID]
+            }).catch((err) => reject(err)).then((res) => {
+                this.postgres.query({
+                    "text": "SELECT emoji FROM guilds WHERE id = $1;",
+                    "values": [guildID]
+                }).catch((err) => reject(err)).then((res) => {
+                    resolve(res.rows[0]);
+                });
+            })
         });
     }
 
@@ -171,8 +189,8 @@ class Pg {
                 who = who.filter((item, index, array) => index === array.indexOf(item));
 
                 this.postgres.query({
-                    "text": "UPDATE starboard SET stars = (stars + 1), who = $1 WHERE msg = $2;",
-                    "values": [{ "who": who }, msgID]
+                    "text": "UPDATE starboard SET stars = $1, who = $2 WHERE msg = $3;",
+                    "values": [who.length, { "who": who }, msgID]
                 }).catch((err) => reject(err)).then((res) => {
                     this.postgres.query({
                         "text": "SELECT * FROM starboard WHERE msg = $1;",
@@ -198,8 +216,8 @@ class Pg {
 
                 if (who.length > 0) {
                     this.postgres.query({
-                        "text": "UPDATE starboard SET stars = (stars - 1), who = $1 WHERE msg = $2;",
-                        "values": [{ "who": who }, msgID]
+                        "text": "UPDATE starboard SET stars = $1, who = $2 WHERE msg = $3;",
+                        "values": [who.length, { "who": who }, msgID]
                     }).catch((err) => reject(err)).then((res) => {
                         this.postgres.query({
                             "text": "SELECT * FROM starboard WHERE msg = $1;",
