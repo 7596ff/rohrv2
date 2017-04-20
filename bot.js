@@ -99,9 +99,11 @@ function starboardEmbed(message) {
     };
 
     if (message.member.roles.length > 0) {
-        embed.color = message.member.roles
-            .map(role => message.channel.guild.roles.get(role))
-            .sort((a, b) => b.position - a.position)[0].color;
+        let colorRole = message.member.roles
+            .map((role) => message.channel.guild.roles.get(role))
+            .sort((a, b) => b.position - a.position)
+            .find((role) => role.color != 0);
+        embed.color = colorRole ? colorRole.color : 0;
     }
 
     let matches = message.content.match(/(https?:\/\/.*\.(?:png|jpg|gif|jpeg))/g);
@@ -110,9 +112,9 @@ function starboardEmbed(message) {
     if (message.attachments.length > 0) {
         if (message.attachments[0].url.match(/(https?:\/\/.*\.(?:png|jpg|gif|jpeg))/g)) {
             embed.image = { "url": message.attachments[0].url };
-        } else {
-            embed.description += `[Attachment](${message.attachments[0].url})`;
         }
+
+        embed.description += `[Attachment](${message.attachments[0].url})`;
     }
 
     return embed;
@@ -163,11 +165,8 @@ client.on("messageCreate", (message) => {
 });
 
 client.on("messageUpdate", (message) => {
-    if (Date.now() - 15000 > message.timestamp) return;
-
     cacheGcfg(message.channel.guild.id).catch((err) => console.error(err)).then((gcfg) => {
         client.pg.getStarStatus(message.id).catch((err) => {
-            console.log(err);
             console.log("err getting star status within message update");
         }).then((res) => {
             if (res != "dne" && gcfg.starboard > 0) {
@@ -183,16 +182,13 @@ client.on("messageUpdate", (message) => {
 client.on("messageDelete", (message) => {
     cacheGcfg(message.channel.guild.id).catch((err) => console.error(err)).then((gcfg) => {
         client.pg.getStarStatus(message.id).catch((err) => {
-            console.log(err);
             console.log("err getting star status within message delete");
         }).then((res) => {
             if (res != "dne" && gcfg.starboard > 0) {
                 client.pg.removeStar(message.id).catch((err) => {
-                    console.error(err);
                     console.error("err deleting star within message delete");
                 }).then((res) => {
                     client.deleteMessage(gcfg.starboard, res.post).catch((err) => {
-                        console.error(err);
                         console.error(`couldn't delete starboard post. channel: ${gcfg.starboard}`);
                     });
                 });
@@ -211,11 +207,7 @@ async function onReactionChange(message, emoji, userID, add) {
         try {
             message = await client.getMessage(message.channel.id, message.id);
         } catch (err) {
-            if (err.response.code != 10008) {
-                console.error(err);
-                console.error("error getting message within reactions");
-            }
-
+            if (err.response.code != 10008) console.error("error getting message within reactions");
             return;
         }
     }
@@ -224,38 +216,19 @@ async function onReactionChange(message, emoji, userID, add) {
     try {
         gcfg = await cacheGcfg(guildID);
     } catch (err) {
-        console.error(err);
         console.error("error caching gcfg within reactions");
         return;
     }
 
     if (!gcfg.starboard || gcfg.starboard == 0) return;
     if (emoji != gcfg.emoji) return;
-
-    if (message.channel.id == gcfg.starboard) {
-        try {
-            let ch = message.content.find(/\d{5,}/g);
-            let me = message.embeds[0].footer.find(/\d{5,}/g);
-            if (!(ch && me)) return;
-
-            message = await client.getMessage(ch, me);
-        } catch (err) {
-            if (err.response.code != 10008) {
-                console.error(err);
-                console.error("error getting message within reactions");
-            }
-
-            return;
-        }
-    }
-
+    if (message.channel.id == gcfg.starboard) return;
     if (message.member.id == userID) return;
 
     let status;
     try {
         status = await client.pg.getStarStatus(message.id);
     } catch (err) {
-        console.error(err);
         console.error("error checking star status within reactions");
     }
 
@@ -265,28 +238,24 @@ async function onReactionChange(message, emoji, userID, add) {
             row = await client.pg.createStar(guildID, message.member.id, message.channel.id, message.id,
                                              message.member.username, message.channel.name, userID);
         } catch (err) {
-            console.error(err);
             console.error("error creating star row within reactions");
         }
     } else if (add === true) {
         try {
             row = await client.pg.incrementStar(message.id, userID);
         } catch (err) {
-            console.error(err);
             console.error("error incrementing star");
         }
     } else if (add === false) {
         try {
             row = await client.pg.decrementStar(message.id, userID);
         } catch (err) {
-            console.error(err);
             console.error("error decrementing star");
         }
     }
 
     if (row.dne === true && row.post > 0) {
         client.deleteMessage(gcfg.starboard, row.post).catch((err) => {
-            console.error(err);
             console.error(`couldn't delete starboard post. channel: ${gcfg.starboard}`);
         });
     } else if (row.dne === true) {
@@ -294,11 +263,9 @@ async function onReactionChange(message, emoji, userID, add) {
             "content": `:star: **${row.stars}** <#${message.channel.id}>`,
             "embed": starboardEmbed(message)
         }).catch((err) => {
-            console.error(err);
             console.error(`couldn't create starboard post. channel: ${gcfg.starboard}`);
         }).then((msg) => {
             client.pg.addPost(message.id, msg.id).catch((err) => {
-                console.error(err);
                 console.error("couldn't add post to starboard record");
             });
         });
@@ -308,7 +275,6 @@ async function onReactionChange(message, emoji, userID, add) {
             "content": `:star: **${row.stars}** <#${message.channel.id}>`,
             "embed": starboardEmbed(message)
         }).catch((err) => {
-            console.error(err);
             console.error("couldn't edit starboard post");
         });
     }
