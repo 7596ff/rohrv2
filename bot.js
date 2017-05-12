@@ -19,6 +19,9 @@ client.pg = new Pg(client.postgres);
 
 client.gcfg = {};
 
+client.watchedCodes = [];
+client.invites = [];
+
 rsub.subscribe("__keyevent@0__:expired", (err) => {
     if (err) {
         console.log(err);
@@ -52,7 +55,9 @@ client.commands = {
     "dont": require("./commands/dont"),
     "do": require("./commands/do"),
     "starboard": require("./commands/starboard"),
-    "star": require("./commands/star")
+    "star": require("./commands/star"),
+    "roles": require("./commands/roles"),
+    "link": require("./commands/link")
 };
 
 client.tasks = {};
@@ -60,6 +65,17 @@ client.tasks = {};
 client.on("ready", () => {
     util.log("rohrv2 ready.");
     client.editStatus("online", { name: "hecking unbelieveable" });
+
+    let promises = [];
+
+    client.guilds.forEach((guild) => {
+        promises.push(guild.getInvites());
+    });
+
+    Promise.all(promises).then((results) => {
+        results.map((result) => client.invites.push(...result));
+        console.log(`${client.invites.length} invites found`);
+    });
 });
 
 client.once("ready", () => {
@@ -98,6 +114,36 @@ function cacheGcfg(guildID) {
         }
     });
 }
+
+async function addRoleFromCode(guildID, memberID, code) {
+    try {
+        let role = await client.pg.getRole(code);
+        await client.addGuildMemberRole(guildID, memberID, role);
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+client.on("guildMemberAdd", async function(guild, member) {
+    try {
+        let invites = await guild.getInvites();
+        let unique = client.invites.find((oldInv) => {
+            return invites.find((newInv) => {
+                return newInv.code == oldInv.code && newInv.uses > oldInv.uses;
+            });
+        });
+
+        if (!unique) {
+            console.error("what the heck");
+        } else {
+            if (client.watchedCodes.includes(unique.code)) {
+                addRoleFromCode(guild.id, member.id, unique.code);
+            }
+        }
+    } catch (err) {
+        console.error(err);
+    }
+});
 
 function processMessage(message) {
     let splitContent = message.content.split(" ");
@@ -292,5 +338,13 @@ client.postgres.connect((err) => {
     }
 
     console.log("postgres ready");
-    client.connect();
+    console.log("setting up watched codes");
+
+    client.pg.getCodes().then((codes) => {
+        client.watchedCodes.push(...codes);
+        client.connect();
+    }).catch((err) => {
+        console.error(err);
+        process.exit(1);
+    });
 });

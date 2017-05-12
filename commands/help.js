@@ -13,6 +13,7 @@ module.exports = (message) => {
         "`katze star stats` - show some stats about starboard",
         "`katze star show <message id>` - display a star inline",
         "`katze star who <message id>` - display who starred a message",
+        "`katze roles` - show list of roles in the server",
         "",
         "use `katze help admin` to show admin commands."
     ].join("\n");
@@ -28,7 +29,9 @@ module.exports = (message) => {
         "`katze do` - enable icon rotation",
         "`katze starboard channel <channel mention>` - set which channel to host starboard in",
         "`katze starboard emoji <emoji>` - set which emoji to use as star",
-        "`katze starboard clean <threshold>` - delete all stars less than a week old that are under threshold"
+        "`katze starboard clean <threshold>` - delete all stars less than a week old that are under threshold",
+        "`katze link <role id>` - katze creates an invite link that will automatically assign this role id to new members.", 
+        "    note: it will only work for the first role, and to unlink just delete the perma or delete the role"
     ].join("\n");
     
     message.channel.createMessage(message.content == "help admin" ? adminHelp : help).then(() => {

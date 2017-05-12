@@ -47,6 +47,7 @@ module.exports = message => {
 
     message.channel.sendTyping().then(() => {
         fs.readdir(__upone, (err, files) => {
+            if (!files) return message.channel.createMessage("no files ;kjlzskldjflkjdf");
             files.sort();
             let requests = files.map(fname => get_image(`${__upone}/${fname}`));
             Promise.all(requests).then(flist => {

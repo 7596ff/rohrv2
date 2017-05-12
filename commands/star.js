@@ -112,6 +112,7 @@ const subcommands = {
 
             let who = await client.pg.checkStarWho(args[0]);
             let actuallyWho = who
+                .filter((id) => client.users.get(id))
                 .map((id) => client.users.get(id))
                 .map((user) => user)
                 .map((user) => `${user.username}#${user.discriminator}`)
