@@ -293,6 +293,41 @@ class Pg {
             });
         });
     }
+
+    upsertRole(role, code, guildID) {
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                "text": [
+                    "INSERT INTO roles VALUES ($1, $2, $3) ON CONFLICT (role) DO",
+                    "UPDATE SET invitecode = $2 WHERE roles.role = $1;"
+                ].join(" "),
+                "values": [role, code, guildID]
+            }).catch((err) => reject(err)).then((res) => {
+                resolve();
+            });
+        });
+    }
+
+    getCodes() {
+        return new Promise((resolve, reject) => {
+            this.postgres.query("SELECT invitecode FROM roles;")
+                .catch((err) => reject(err))
+                .then((res) => {
+                    resolve(res.rows.map((row) => row.invitecode));
+                });
+        });
+    }
+
+    getRole(code) {
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                text: "SELECT role FROM roles WHERE invitecode = $1;",
+                values: [code]
+            }).catch((err) => reject(err)).then((res) => {
+                resolve(res.rows[0].role);
+            });
+        });
+    }
 }
 
 module.exports = Pg;

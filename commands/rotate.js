@@ -11,7 +11,7 @@ module.exports = (message, client) => {
     let dirlist = [];
     let idlist = [];
     fs.readdir(__upone, (err, files) => {
-        if (files.length < 1) {
+        if (!files || files.length < 1) {
             message.channel.createMessage(":octagonal_sign: not enough images!");
             return;
         }
