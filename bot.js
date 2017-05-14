@@ -20,7 +20,7 @@ client.pg = new Pg(client.postgres);
 client.gcfg = {};
 
 client.watchedCodes = [];
-client.invites = [];
+client.invites = new Map();
 
 rsub.subscribe("__keyevent@0__:expired", (err) => {
     if (err) {
@@ -73,8 +73,12 @@ client.on("ready", () => {
     });
 
     Promise.all(promises).then((results) => {
-        results.map((result) => client.invites.push(...result));
-        console.log(`${client.invites.length} invites found`);
+        results.forEach((result) => {
+            result.forEach((invite) => {
+                client.invites.set(invite.code, invite);
+            });
+        });
+        console.log(`${client.invites.size} invites found`);
     });
 });
 
@@ -127,17 +131,17 @@ async function addRoleFromCode(guildID, memberID, code) {
 client.on("guildMemberAdd", async function(guild, member) {
     try {
         let invites = await guild.getInvites();
-        let unique = client.invites.find((oldInv) => {
-            return invites.find((newInv) => {
-                return newInv.code == oldInv.code && newInv.uses > oldInv.uses;
-            });
-        });
+        let unique;
+        for (oldInv of client.invites.values()) {
+            let x = invites.find((newInv) => newInv.code == oldInv.code & newInv.uses > oldInv.uses);
+            if (x) unique = x;
+        }
 
-        if (!unique) {
-            console.error("what the heck");
-        } else {
+        if (unique) {
+            client.invites.set(unique.code, unique);
             if (client.watchedCodes.includes(unique.code)) {
-                addRoleFromCode(guild.id, member.id, unique.code);
+                await addRoleFromCode(guild.id, member.id, unique.code);
+                console.log(`added role to ${member.username} on ${guild.name} (code ${unique.code})`);
             }
         }
     } catch (err) {
