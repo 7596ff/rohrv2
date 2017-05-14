@@ -1,4 +1,3 @@
-const util = require("util");
 const fs = require("fs");
 const upone = require("../util/upone");
 const schedule = require("node-schedule");
@@ -8,7 +7,7 @@ module.exports = (client, gid) => {
 
     let __upone = `${upone(__dirname)}/guilds/${gid}`;
     if (!client.guilds.get(gid)) {
-        util.log(`guild ${gid} is dead rip`);
+        console.log(`guild ${gid} is dead rip`);
         return;
     }
 
@@ -16,7 +15,7 @@ module.exports = (client, gid) => {
 
     fs.readdir(__upone, (err, files) => {
         if (!files) {
-            util.log(`${gid}/${gname}: no images`);
+            console.log(`${gid}/${gname}: no images`);
             return;
         }
 
@@ -28,8 +27,7 @@ module.exports = (client, gid) => {
                     require("./actual_rotate")(client.guilds.get(gid), null, client, files, gcfg, __upone);
                 });
 
-                util.log(`scheduled rotate for guild ${gid}/${gname}`);
-                util.log(`  images ${files.length}, timeout ${gcfg.timeout} (${rule})`);
+                console.log(`${gid}/${gname}: images ${files.length}, timeout ${gcfg.timeout} (${rule})`);
             });
         }
     });
