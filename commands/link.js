@@ -13,7 +13,7 @@ async function link(message) {
         let invite = await message.channel.createInvite({ maxAge: 0 });
         await message._client.pg.upsertRole(args[1], invite.code, message.channel.guild.id);
         message._client.watchedCodes.push(invite.code);
-        message._client.invites.push(invite);
+        message._client.invites.set(invite.code, invite);
 
         return message.channel.createMessage(`http://discord.gg/${invite.code}`).catch((err) => console.error(err));
     } catch (err) {
