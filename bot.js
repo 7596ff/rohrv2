@@ -58,6 +58,7 @@ client.commands = {
     "star": require("./commands/star"),
     "roles": require("./commands/roles"),
     "link": require("./commands/link"),
+    "pinboard": require("./commands/pinboard"),
 };
 
 client.tasks = {};
@@ -149,7 +150,26 @@ client.on("guildMemberAdd", async function(guild, member) {
     }
 });
 
+async function processPin(message) {
+    //if (!(message.gcfg.pinboardin && message.gcfg.pinboardout)) return;
+    //if (message.channel.id !== message.gcfg.pinboardin) return;
+
+    try {
+        let pins = await message.channel.getPins();
+        let embed = starboardEmbed(pins[0]);
+        embed.content = "";
+        await client.createMessage(message.gcfg.pinboardout, embed);
+    } catch (err) {
+        console.error(err);
+        console.error("couldn't get pins");
+    }
+}
+
 function processMessage(message) {
+    if (message.type == 6) {
+        return processPin(message);
+    }
+
     let splitContent = message.content.split(" ");
 
     if (splitContent.shift() == config.defaultPrefix && splitContent[0] in client.commands) {
@@ -176,7 +196,7 @@ client.on("messageCreate", (message) => {
 
     cacheGcfg(message.channel.guild.id).catch((err) => console.error(err)).then((gcfg) => {
         message.gcfg = gcfg;
-        processMessage(message);
+        return processMessage(message);
     });
 });
 
