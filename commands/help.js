@@ -31,7 +31,11 @@ module.exports = (message) => {
         "`katze starboard emoji <emoji>` - set which emoji to use as star",
         "`katze starboard clean <threshold>` - delete all stars less than a week old that are under threshold",
         "`katze link <role id>` - katze creates an invite link that will automatically assign this role id to new members.", 
-        "    note: it will only work for the first role, and to unlink just delete the perma or delete the role"
+        "    note: it will only work for the first role, and to unlink just delete the perma or delete the role",
+        "`katze pinboard in #channel` - set channel to collect pins from",
+        "`katze pinboard out #channel` - set channel to spit pins out from",
+        "`katze migratepins` - add all current pins to pinboard out channel",
+        "`katze cleanpins` - toggle auto removal of old pins"
     ].join("\n");
     
     message.channel.createMessage(message.content == "help admin" ? adminHelp : help).then(() => {
