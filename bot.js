@@ -59,6 +59,7 @@ client.commands = {
     "roles": require("./commands/roles"),
     "link": require("./commands/link"),
     "pinboard": require("./commands/pinboard"),
+    "cleanpins": require("./commands/cleanpins"),
 };
 
 client.tasks = {};
@@ -159,6 +160,9 @@ async function processPin(message) {
         let embed = starboardEmbed(pins[0]);
         embed.content = "";
         await client.createMessage(message.gcfg.pinboardout, embed);
+        if (message.gcfg.cleanpins && pins.length > 49) {
+            await client.unpinMessage(message.gcfg.pinboardin, pins[pins.length - 1].id);
+        }
     } catch (err) {
         console.error(err);
         console.error("couldn't get pins");

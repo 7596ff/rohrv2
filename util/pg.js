@@ -367,6 +367,25 @@ class Pg {
             })
         });
     }
+
+    flipPins(guildID) {
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                "text": "SELECT (cleanpins) FROM guilds WHERE id = $1;",
+                "values": [guildID]
+            }).catch((err) => reject(err)).then((res) => {
+                let cleanpins = res.rows[0].cleanpins;
+                cleanpins = !cleanpins;
+
+                this.postgres.query({
+                    "text": "UPDATE guilds SET cleanpins = $1 WHERE id = $2;",
+                    "values": [cleanpins, guildID]
+                }).catch((err) => reject(err)).then((res) => {
+                    resolve({ "cleanpins": cleanpins, "res": res });
+                });
+            });
+        });
+    }
 }
 
 module.exports = Pg;
