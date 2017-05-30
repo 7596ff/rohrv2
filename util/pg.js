@@ -335,6 +335,38 @@ class Pg {
             });
         });
     }
+
+    updatePinboardInChannel(guildID, channelID) {
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                "text": "UPDATE guilds SET pinboardin = $1 WHERE id = $2;",
+                "values": [channelID || 0, guildID]
+            }).catch((err) => reject(err)).then((res) => {
+                this.postgres.query({
+                    "text": "SELECT pinboardin FROM guilds WHERE id = $1;",
+                    "values": [guildID]
+                }).catch((err) => reject(err)).then((res) => {
+                    resolve(res.rows[0]);
+                });
+            })
+        });
+    }
+
+    updatePinboardOutChannel(guildID, channelID) {
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                "text": "UPDATE guilds SET pinboardout = $1 WHERE id = $2;",
+                "values": [channelID || 0, guildID]
+            }).catch((err) => reject(err)).then((res) => {
+                this.postgres.query({
+                    "text": "SELECT pinboardout FROM guilds WHERE id = $1;",
+                    "values": [guildID]
+                }).catch((err) => reject(err)).then((res) => {
+                    resolve(res.rows[0]);
+                });
+            })
+        });
+    }
 }
 
 module.exports = Pg;
