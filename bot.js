@@ -151,8 +151,8 @@ client.on("guildMemberAdd", async function(guild, member) {
 });
 
 async function processPin(message) {
-    //if (!(message.gcfg.pinboardin && message.gcfg.pinboardout)) return;
-    //if (message.channel.id !== message.gcfg.pinboardin) return;
+    if (!(message.gcfg.pinboardin && message.gcfg.pinboardout)) return;
+    if (message.channel.id !== message.gcfg.pinboardin) return;
 
     try {
         let pins = await message.channel.getPins();
