@@ -16,7 +16,7 @@ async function migratepins(message) {
         pins = pins.reverse();
 
         for (pin of pins) {
-            if (!pin.member) return;
+            if (!pin.member) continue;
             let embed = starboardEmbed(pin);
             embed.content = "";
             message._client.createMessage(message.gcfg.pinboardout, embed);
