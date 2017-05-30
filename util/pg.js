@@ -71,6 +71,13 @@ class Pg {
         });
     }
 
+    updateSlowrole(guildID, roleID) {
+        return this.postgres.query({
+            "text": "UPDATE guilds SET slowrole = $1 WHERE id = $2;",
+            "values": [roleID || 0, guildID]
+        });
+    }
+
     makeDont(guildID) {
         return this.postgres.query({
             "text": "UPDATE guilds SET dont = 't' WHERE id = $1;",

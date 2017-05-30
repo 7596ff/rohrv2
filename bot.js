@@ -57,7 +57,7 @@ client.commands = {
     "starboard": require("./commands/starboard"),
     "star": require("./commands/star"),
     "roles": require("./commands/roles"),
-    "link": require("./commands/link")
+    "link": require("./commands/link"),
 };
 
 client.tasks = {};
