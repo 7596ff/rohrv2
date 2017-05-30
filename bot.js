@@ -60,6 +60,7 @@ client.commands = {
     "link": require("./commands/link"),
     "pinboard": require("./commands/pinboard"),
     "cleanpins": require("./commands/cleanpins"),
+    "migratepins": require("./commands/migratepins"),
 };
 
 client.tasks = {};
