@@ -61,6 +61,8 @@ client.commands = {
     "pinboard": require("./commands/pinboard"),
     "cleanpins": require("./commands/cleanpins"),
     "migratepins": require("./commands/migratepins"),
+    "pin": require("./commands/pin"),
+    "farm": require("./commands/farm"),
 };
 
 client.tasks = {};
