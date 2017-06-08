@@ -71,19 +71,15 @@ client.on("ready", () => {
     util.log("rohrv2 ready.");
     client.editStatus("online", { name: "hecking unbelieveable" });
 
-    let promises = [];
-
     client.guilds.forEach((guild) => {
-        promises.push(guild.getInvites());
-    });
-
-    Promise.all(promises).then((results) => {
-        results.forEach((result) => {
-            result.forEach((invite) => {
+        guild.getInvites().then((invites) => {
+            invites.forEach((invite) => {
                 client.invites.set(invite.code, invite);
             });
-        });
-        console.log(`${client.invites.size} invites found`);
+            console.log(`set ${invites.length} invite for ${guild.id}/${guild.name}`);
+        }).catch((err) => {
+            console.log(`couldn't get invites for ${guild.id}/${guild.name}`);
+        })
     });
 });
 
