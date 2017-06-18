@@ -19,7 +19,7 @@ module.exports = (message) => {
     }
 
     if (message.mentions.length == 1) {
-        download(message.channel.guild.id, message.id, message.mentions[0].avatarURL).then((path) => {
+        download(message.channel.guild.id, message.id, message.mentions[0].staticAvatarURL).then((path) => {
             force(path, message.channel.guild);
             message.channel.createMessage(":white_check_mark: saved your image.").then(() => resched(message._client, message.channel.guild.id));
         }).catch(err => {
