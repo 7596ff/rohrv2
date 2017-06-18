@@ -5,6 +5,7 @@ const upone = require("./upone");
 
 module.exports = (gid, mid, url) => {
     return new Promise((resolve, reject) => {
+        url = url.split("?")[0]; // xd
         let type = url.split(".")[url.split(".").length - 1];
         if (["png", "jpg", "jpeg"].indexOf(type) != -1) {
             let __upone = upone(__dirname);
