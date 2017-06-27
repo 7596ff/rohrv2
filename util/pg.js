@@ -386,6 +386,14 @@ class Pg {
             });
         });
     }
+
+    getActivityRoles() {
+        return new Promise((resolve, reject) => {
+            this.postgres.query("SELECT id, activityrole FROM guilds WHERE activityrole <> 0;")
+                .catch((err) => reject(err))
+                .then((res) => resolve(res.rows));
+        });
+    }
 }
 
 module.exports = Pg;

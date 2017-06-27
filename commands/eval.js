@@ -8,7 +8,7 @@ const clean = (text) => {
     }
 };
 
-module.exports = (message) => {
+module.exports = (message, client) => {
     let params = message.content.split(" ").splice(1);
 
     if (message.member.id == "102645408223731712") {
