@@ -179,6 +179,8 @@ async function processPin(message) {
 }
 
 async function addActivity(message) {
+    if (message.member.bot) return;
+
     let roleID = client.gcfg[message.channel.guild.id].activityrole;
     if (!(roleID && roleID != 0)) return;
 
@@ -350,12 +352,14 @@ client.on("messageReactionAdd", (message, emoji, userID) => onReactionChange(mes
 client.on("messageReactionRemove", (message, emoji, userID) => onReactionChange(message, emoji, userID, false));
 
 client.on("guildMemberRemove", (guild, member) => {
-    redis.expire(`katze:activity:${guild.id}:${member.id}`, 1);
+    redis.del(`katze:activity:${guild.id}:${member.id}`);
 });
 
 async function decayGuildActivity(row) {
     let guild = client.guilds.get(row.id);
     if (!guild) return 0;
+
+    if (!guild.roles.get(row.activityrole)) return;
 
     let members = guild.members.filter((member) => member.roles.includes(row.activityrole));
     if (!members.length) return 0;
