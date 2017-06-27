@@ -94,7 +94,7 @@ client.once("ready", () => {
         resched(client, guild.id);
     });
 
-    client.tasks.decay = schedule.scheduleJob("* */1 * * *", () => {
+    client.tasks.decay = schedule.scheduleJob("0 * * * *", () => {
         decayActivity().catch((err) => console.error(err));
     });
 });
