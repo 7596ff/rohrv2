@@ -6,6 +6,9 @@ const fs = require("fs");
 const Eris = require("eris");
 const Redis = require("redis");
 const Postgres = require("pg");
+const schedule = require("node-schedule");
+
+require("bluebird").promisifyAll(Redis);
 
 const Pg = require("./util/pg");
 const resched = require("./util/resched");
@@ -16,8 +19,10 @@ var redis = Redis.createClient();
 var rsub = Redis.createClient();
 client.postgres = new Postgres.Client(config.pg);
 client.pg = new Pg(client.postgres);
+client.redis = redis;
 
 client.gcfg = {};
+client.config = config;
 
 client.watchedCodes = [];
 client.invites = new Map();
@@ -63,6 +68,7 @@ client.commands = {
     "migratepins": require("./commands/migratepins"),
     "pin": require("./commands/pin"),
     "farm": require("./commands/farm"),
+    "deactivate": require("./commands/deactivate"),
 };
 
 client.tasks = {};
@@ -86,6 +92,10 @@ client.on("ready", () => {
 client.once("ready", () => {
     client.guilds.forEach((guild) => {
         resched(client, guild.id);
+    });
+
+    client.tasks.decay = schedule.scheduleJob("* */1 * * *", () => {
+        decayActivity().catch((err) => console.error(err));
     });
 });
 
@@ -168,6 +178,23 @@ async function processPin(message) {
     }
 }
 
+async function addActivity(message) {
+    let roleID = client.gcfg[message.channel.guild.id].activityrole;
+    if (!roleID) return;
+
+    let key = `katze:activity:${message.channel.guild.id}:${message.member.id}`;
+
+    try {
+        await redis.incrAsync(key);
+
+        if (!~message.member.roles.indexOf(roleID)) {
+            await message.member.addRole(roleID);
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 function processMessage(message) {
     if (message.type == 6) {
         return processPin(message);
@@ -180,16 +207,7 @@ function processMessage(message) {
         client.commands[splitContent[0]](message, client);
     }
 
-    let roleID = client.gcfg[message.channel.guild.id].activityrole;
-    if (roleID && roleID != 0) {
-        let key = `katze:activity:${message.channel.guild.id}:${message.member.id}`;
-        redis.get(key, (err, reply) => {
-            if (!message.member.bot) {
-                redis.setex(key, 86400, true);
-                if (!reply) message.member.addRole(roleID).catch((err) => console.log(err));
-            }
-        });
-    }
+    return addActivity(message);
 }
 
 client.on("messageCreate", (message) => {
@@ -335,23 +353,42 @@ client.on("guildMemberRemove", (guild, member) => {
     redis.expire(`katze:activity:${guild.id}:${member.id}`, 1);
 });
 
-rsub.on("message", (channel, message) => {
-    if (!message.startsWith("katze:activity")) return;
+async function decayGuildActivity(row) {
+    let guild = client.guilds.get(row.id);
+    if (!guild) return 0;
 
-    const guildID = message.split(":")[2];
-    const memberID = message.split(":")[3];
+    let members = guild.members.filter((member) => member.roles.includes(row.activityrole));
+    if (!members.length) return 0;
 
-    let guild = client.guilds.get(guildID);
-    if (!guild) return;
+    let removed = 0;
 
-    let member = guild.members.get(memberID);
-    if (!member) return;
+    for (member of members) {
+        let key = `katze:activity:${row.id}:${member.id}`;
 
-    client.pg.getGcfg(guildID).catch((err) => console.error(err)).then((gcfg) => {
-        let roleID = gcfg.activityrole;
-        if (member.roles.includes(roleID)) member.removeRole(roleID);
-    });
-});
+        let count = await redis.getAsync(key);
+        let newCount = Math.floor(count * 0.7);
+        await redis.setAsync(key, newCount);
+
+        if (newCount > 10) continue;
+
+        await redis.setAsync(key, 0);
+        await member.removeRole(row.activityrole);
+
+        removed += 1;
+    }
+
+    return removed;
+}
+
+async function decayActivity() {
+    let rows = await client.pg.getActivityRoles();
+
+    let promises = rows.map((row) => decayGuildActivity(row));
+    let results = await Promise.all(promises);
+
+    let amount = results.reduce((a, b) => a + b);
+    if (amount) console.log(`removed ${amount} roles from ${results.length} different guilds`);
+}
 
 process.on("exit", () => {
     util.log("exiting");
