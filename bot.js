@@ -366,7 +366,7 @@ async function decayGuildActivity(row) {
 
     let removed = 0;
 
-    for (member of members) {
+    for (let member of members) {
         let key = `katze:activity:${row.id}:${member.id}`;
 
         let count = await redis.getAsync(key);
