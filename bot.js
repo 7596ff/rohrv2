@@ -376,7 +376,12 @@ async function decayGuildActivity(row) {
         if (newCount > 10) continue;
 
         await redis.setAsync(key, 0);
-        await member.removeRole(row.activityrole);
+        try {
+            await member.removeRole(row.activityrole);
+        } catch (err) {
+            console.error(`${guild.name}/${member.username}`);
+            console.error(err.response);
+        }
 
         removed += 1;
     }
