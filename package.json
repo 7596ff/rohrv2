@@ -3,17 +3,6 @@
   "version": "0.0.1",
   "description": "lol this is a cruel joke",
   "main": "bot.js",
-  "dependencies": {
-    "bluebird": "^3.5.0",
-    "canvas": "^1.6.5",
-    "canvas-prebuilt": "^1.6.0",
-    "eris": "^0.5.2",
-    "needle": "^1.5.0",
-    "node-schedule": "^1.2.0",
-    "pg": "^6.1.5",
-    "pretty-ms": "^2.1.0",
-    "redis": "^2.7.1"
-  },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -27,5 +16,16 @@
   "bugs": {
     "url": "https://github.com/bippum/rohrv2/issues"
   },
-  "homepage": "https://github.com/bippum/rohrv2#readme"
+  "homepage": "https://github.com/bippum/rohrv2#readme",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "canvas": "^1.6.5",
+    "canvas-prebuilt": "^1.6.5-prerelease.1",
+    "eris": "^0.7.0",
+    "needle": "^1.6.0",
+    "node-schedule": "^1.2.3",
+    "pg": "^6.4.0",
+    "pretty-ms": "^2.1.0",
+    "redis": "^2.7.1"
+  }
 }
