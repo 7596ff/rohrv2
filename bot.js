@@ -180,7 +180,7 @@ async function processPin(message) {
 
 async function addActivity(message) {
     let roleID = client.gcfg[message.channel.guild.id].activityrole;
-    if (!roleID || roleID != 0) return;
+    if (!(roleID && roleID != 0)) return;
 
     let key = `katze:activity:${message.channel.guild.id}:${message.member.id}`;
 
