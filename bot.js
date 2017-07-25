@@ -263,7 +263,6 @@ async function onReactionChange(message, emoji, userID, add) {
         try {
             message = await client.getMessage(message.channel.id, message.id);
         } catch (err) {
-            if (err.response.code != 10008) console.error("error getting message within reactions");
             return;
         }
     }
