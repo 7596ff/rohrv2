@@ -25,6 +25,7 @@ async function emojis(message, client) {
 
         for (let day of results) {
             for (let i = 0; i < day.length; i += 2) {
+                if (!guildEmoji[day[i]]) continue;
                 guildEmoji[day[i]].count += Number(day[i + 1]);
             }
         }
