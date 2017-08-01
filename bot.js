@@ -184,6 +184,8 @@ const custom = /<:[a-zA-Z1-9-_]{2,}:\d{17,20}>/g;
 
 // scores emoji usage in a guild per day
 async function scoreEmojis(message, content) {
+    if (message.member.bot) return;
+
     let emojis = content.match(custom);
     if (!emojis) return;
 
