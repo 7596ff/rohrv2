@@ -13,6 +13,7 @@ require("bluebird").promisifyAll(Redis);
 const Pg = require("./util/pg");
 const resched = require("./util/resched");
 const starboardEmbed = require("./util/starboardEmbed");
+const today = require("./util/today");
 
 var client = new Eris(config.token);
 var redis = Redis.createClient();
@@ -69,6 +70,7 @@ client.commands = {
     "pin": require("./commands/pin"),
     "farm": require("./commands/farm"),
     "deactivate": require("./commands/deactivate"),
+    "emojis": require("./commands/emojis"),
 };
 
 client.tasks = {};
@@ -178,6 +180,24 @@ async function processPin(message) {
     }
 }
 
+const custom = /<:[a-zA-Z1-9-_]{2,}:\d{17,20}>/g;
+
+// scores emoji usage in a guild per day
+async function scoreEmojis(message, content) {
+    let emojis = content.match(custom);
+    if (!emojis) return;
+
+    let ymd = `emojis:${today()}`;
+
+    for (let emoji of emojis) {
+        let id = emoji.split(":")[2].slice(0, -1);
+
+        if (!message.channel.guild.emojis.find((emoji) => emoji.id == id)) return;
+
+        let newscore = await redis.zincrbyAsync(ymd, 1, id);
+    }
+}
+
 async function addActivity(message) {
     if (message.member.bot) return;
 
@@ -201,6 +221,8 @@ function processMessage(message) {
     if (message.type == 6) {
         return processPin(message);
     }
+
+    scoreEmojis(message, message.content.slice());
 
     let splitContent = message.content.split(" ");
 
