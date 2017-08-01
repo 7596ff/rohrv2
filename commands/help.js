@@ -14,6 +14,8 @@ module.exports = (message) => {
         "`katze star show <message id>` - display a star inline",
         "`katze star who <message id>` - display who starred a message",
         "`katze roles` - show list of roles in the server",
+        "`katze emojis` - show top 10 emojis by usage in last week",
+        "`katze emojis all` - show all emojis by usage in last week (might break)",
         "",
         "use `katze help admin` to show admin commands."
     ].join("\n");
