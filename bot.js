@@ -78,7 +78,7 @@ client.tasks = {};
 
 client.on("ready", () => {
     util.log("rohrv2 ready.");
-    client.editStatus("online", { name: "hecking unbelieveable" });
+    client.editStatus("online", { name: "hecking unbelieveable", type: 0 });
 
     client.guilds.forEach((guild) => {
         guild.getInvites().then((invites) => {
