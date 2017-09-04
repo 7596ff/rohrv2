@@ -158,9 +158,7 @@ client.on("guildMemberAdd", async function(guild, member) {
                 console.log(`added role to ${member.username} on ${guild.name} (code ${unique.code})`);
             }
         }
-    } catch (err) {
-        console.error(err);
-    }
+    } catch (err) {}
 });
 
 async function processPin(message) {
