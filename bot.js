@@ -443,3 +443,5 @@ client.postgres.connect((err) => {
         process.exit(1);
     });
 });
+
+client.on("error", console.error);
