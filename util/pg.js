@@ -394,6 +394,29 @@ class Pg {
                 .then((res) => resolve(res.rows));
         });
     }
+
+    createRolemeRole(id, guild) {
+        return this.postgres.query({
+            "text": "INSERT INTO roleme (id, guild) VALUES ($1, $2);",
+            "values": [id, guild]
+        });
+    }
+
+    deleteRolemeRole(id) {
+        return this.postgres.query({
+            "text": "DELETE FROM roleme WHERE id = $1;",
+            "values": [id]
+        });
+    }
+
+    getGuildRolemeRoles(guild) {
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                "text": "SELECT (id) FROM roleme WHERE guild = $1;",
+                "values": [guild]
+            }).catch((err) => reject(err)).then((res) => resolve(res.rows.map((row) => row.id)));
+        });
+    }
 }
 
 module.exports = Pg;

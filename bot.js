@@ -71,6 +71,7 @@ client.commands = {
     "farm": require("./commands/farm"),
     "deactivate": require("./commands/deactivate"),
     "emojis": require("./commands/emojis"),
+    "roleme": require("./commands/roleme"),
 };
 
 client.tasks = {};
