@@ -78,7 +78,7 @@ client.tasks = {};
 
 client.on("ready", () => {
     util.log("rohrv2 ready.");
-    client.editStatus("online", { name: "hecking unbelieveable" });
+    client.editStatus("online", { name: "hecking unbelieveable", type: 0 });
 
     client.guilds.forEach((guild) => {
         guild.getInvites().then((invites) => {
@@ -158,9 +158,7 @@ client.on("guildMemberAdd", async function(guild, member) {
                 console.log(`added role to ${member.username} on ${guild.name} (code ${unique.code})`);
             }
         }
-    } catch (err) {
-        console.error(err);
-    }
+    } catch (err) {}
 });
 
 async function processPin(message) {
@@ -445,3 +443,5 @@ client.postgres.connect((err) => {
         process.exit(1);
     });
 });
+
+client.on("error", console.error);
