@@ -16,6 +16,8 @@ module.exports = (message) => {
         "`katze roles` - show list of roles in the server",
         "`katze emojis` - show top 10 emojis by usage in last week",
         "`katze emojis all` - show all emojis by usage in last week (might break)",
+        "`katze roleme <rolename>` - give yourself a roleme role with this name",
+        "`katze roleme remove <rolename>` -  remove a roleme role from yourself with this name",
         "",
         "use `katze help admin` to show admin commands."
     ].join("\n");
@@ -37,7 +39,10 @@ module.exports = (message) => {
         "`katze pinboard in #channel` - set channel to collect pins from",
         "`katze pinboard out #channel` - set channel to spit pins out from",
         "`katze migratepins` - add all current pins to pinboard out channel",
-        "`katze cleanpins` - toggle auto removal of old pins"
+        "`katze cleanpins` - toggle auto removal of old pins",
+        "`katze roleme add <rolename>` - create a blank roleme role with this name",
+        "`katze roleme enable <rolename>` - enable an existing role to be self assigned",
+        "`katze roleme disable <rolename>` - remove a role from the list of roleme roles"
     ].join("\n");
     
     message.channel.createMessage(message.content == "help admin" ? adminHelp : help).then(() => {
