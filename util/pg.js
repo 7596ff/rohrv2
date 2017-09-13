@@ -417,6 +417,15 @@ class Pg {
             }).catch((err) => reject(err)).then((res) => resolve(res.rows.map((row) => row.id)));
         });
     }
+
+    toggleRolestate(guild) {
+        return new Promise((resolve, reject) => {
+            this.postgres.query({
+                "text": "UPDATE guilds SET rolestate = NOT rolestate WHERE id = $1 RETURNING rolestate;",
+                "values": [guild]
+            }).catch((err) => reject(err)).then((res) => resolve(res.rows[0].rolestate));
+        });
+    }
 }
 
 module.exports = Pg;

@@ -72,6 +72,7 @@ client.commands = {
     "deactivate": require("./commands/deactivate"),
     "emojis": require("./commands/emojis"),
     "roleme": require("./commands/roleme"),
+    "rolestate": require("./commands/rolestate"),
 };
 
 client.tasks = {};
@@ -144,6 +145,17 @@ async function addRoleFromCode(guildID, memberID, code) {
 
 client.on("guildMemberAdd", async function(guild, member) {
     try {
+        let gcfg = await cacheGcfg(guild.id);
+        if (gcfg.rolestate) {
+            let reply = await redis.getAsync(`katze:rolestate:${guild.id}:${member.id}`);
+            if (reply) reply = JSON.parse(reply);
+            if (reply.length) {
+                for (let role of reply) {
+                    try { await member.addRole(role); } catch (err) {}
+                }
+            }
+        }
+
         let invites = await guild.getInvites();
         let unique;
         for (oldInv of client.invites.values()) {
@@ -375,6 +387,8 @@ client.on("messageReactionRemove", (message, emoji, userID) => onReactionChange(
 
 client.on("guildMemberRemove", (guild, member) => {
     redis.del(`katze:activity:${guild.id}:${member.id}`);
+
+    if (member.roles) redis.set(`katze:rolestate:${guild.id}:${member.id}`, JSON.stringify(member.roles));
 });
 
 async function decayGuildActivity(row) {
