@@ -42,7 +42,8 @@ module.exports = (message) => {
         "`katze cleanpins` - toggle auto removal of old pins",
         "`katze roleme add <rolename>` - create a blank roleme role with this name",
         "`katze roleme enable <rolename>` - enable an existing role to be self assigned",
-        "`katze roleme disable <rolename>` - remove a role from the list of roleme roles"
+        "`katze roleme disable <rolename>` - remove a role from the list of roleme roles",
+        "`katze rolestate` - toggle rolestate on or off for this server"
     ].join("\n");
     
     message.channel.createMessage(message.content == "help admin" ? adminHelp : help).then(() => {
