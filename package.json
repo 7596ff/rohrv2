@@ -21,7 +21,7 @@
     "bluebird": "^3.5.0",
     "canvas": "^1.6.5",
     "canvas-prebuilt": "^1.6.5-prerelease.1",
-    "eris": "^0.7.2",
+    "eris": "^0.8.1",
     "fuzzyset.js": "0.0.4",
     "needle": "^1.6.0",
     "node-schedule": "^1.2.3",
