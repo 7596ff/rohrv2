@@ -15,7 +15,7 @@ const resched = require("./util/resched");
 const starboardEmbed = require("./util/starboardEmbed");
 const today = require("./util/today");
 
-var client = new Eris(config.token);
+var client = new Eris(config.token, {getAllUsers: true});
 var redis = Redis.createClient();
 var rsub = Redis.createClient();
 client.postgres = new Postgres.Client(config.pg);
