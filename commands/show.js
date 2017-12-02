@@ -14,6 +14,12 @@ module.exports = message => {
     }
 
     fs.readdir(folder, (err, files) => {
+        if (err) {
+            message.channel.createMessage("something went wrong aaaAAAAHH");
+            console.error(err);
+            return;
+        }
+
         if (files.indexOf(show) != -1) {
             fs.readFile(folder + show, (err, data) => {
                 message.channel.createMessage("", {
