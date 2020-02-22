@@ -19,7 +19,7 @@
   "homepage": "https://github.com/bippum/rohrv2#readme",
   "dependencies": {
     "bluebird": "^3.5.0",
-    "canvas": "^1.6.5",
+    "canvas": "^1.6.10",
     "canvas-prebuilt": "^1.6.5-prerelease.1",
     "eris": "^0.8.1",
     "fuzzyset.js": "0.0.4",
